@@ -167,9 +167,9 @@ export default function LiveWorkout() {
     const workout = {
       id: Date.now(),
       date: new Date().toISOString(),
-      distance: parseFloat(distance.toFixed(2)),
+      distance: parseFloat(distance.toFixed(1)),
       duration: duration / 60, // convert to minutes
-      pace: parseFloat(avgPace.toFixed(2)),
+      pace: parseFloat(avgPace.toFixed(1)),
       route: routePath,
       title: workoutInfo.title || 'GPS Tracked Workout',
       weight: workoutInfo.weight ? parseFloat(workoutInfo.weight) : null
@@ -338,7 +338,7 @@ export default function LiveWorkout() {
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="text-center">
             <p className="text-zinc-500 text-xs mb-1">Distance</p>
-            <p className="text-3xl font-bold">{distance.toFixed(2)}</p>
+            <p className="text-3xl font-bold">{distance.toFixed(1)}</p>
             <p className="text-zinc-500 text-xs">km</p>
           </div>
           <div className="text-center">
