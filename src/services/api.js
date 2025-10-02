@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3001/api';
+const API_URL = 'https://rucking-nrc-production.up.railway.app/api';
 
 export const workoutAPI = {
   // Get all workouts
