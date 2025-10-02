@@ -34,18 +34,20 @@ export default function EffectivenessMetrics() {
 
   return (
     <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Performance Metrics</h2>
-        <div className="flex gap-2">
-          {PERIODS.map(p => (
-            <PeriodButton
-              key={p.value}
-              value={p.value}
-              label={p.label}
-              isActive={period === p.value}
-              onClick={() => setPeriod(p.value)}
-            />
-          ))}
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h2 className="text-2xl font-bold">Performance Metrics</h2>
+          <div className="flex gap-2">
+            {PERIODS.map(p => (
+              <PeriodButton
+                key={p.value}
+                value={p.value}
+                label={p.label}
+                isActive={period === p.value}
+                onClick={() => setPeriod(p.value)}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
