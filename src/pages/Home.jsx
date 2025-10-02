@@ -45,7 +45,7 @@ export default function Home() {
             />
             <StatsCard
               label="Total Time"
-              value={stats.duration}
+              value={stats.duration.toFixed(1)}
               unit="min"
               icon="⏱️"
             />
