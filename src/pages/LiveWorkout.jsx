@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useWorkout } from '../context/WorkoutContext';
 
 // Calculate distance between two GPS coordinates (Haversine formula)
@@ -23,6 +24,7 @@ function formatTime(seconds) {
 }
 
 export default function LiveWorkout() {
+  const navigate = useNavigate();
   const { addWorkout } = useWorkout();
 
   // Workout state
@@ -218,7 +220,7 @@ export default function LiveWorkout() {
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold">Setup Workout</h1>
             <button
-              onClick={() => window.history.back()}
+              onClick={() => navigate('/')}
               className="text-zinc-400 hover:text-white"
             >
               ✕
@@ -277,7 +279,7 @@ export default function LiveWorkout() {
           <h1 className="text-xl font-bold">Live Workout</h1>
           {status === 'idle' && (
             <button
-              onClick={() => window.history.back()}
+              onClick={() => navigate('/')}
               className="text-zinc-400 hover:text-white"
             >
               ✕
@@ -405,7 +407,7 @@ export default function LiveWorkout() {
 
           {status === 'finished' && (
             <button
-              onClick={() => window.history.back()}
+              onClick={() => navigate('/')}
               className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-xl transition-colors"
             >
               ✓ Workout Saved! Go Back
