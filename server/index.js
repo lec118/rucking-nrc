@@ -108,7 +108,7 @@ app.delete('/api/workouts/:id', (req, res) => {
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Rucking NRC API is running' });
+  res.json({ status: 'ok', message: 'Good Ruck API is running' });
 });
 
 app.listen(PORT, () => {

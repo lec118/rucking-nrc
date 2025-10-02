@@ -7,7 +7,7 @@ export default function Hero() {
     <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 p-12 md:p-16">
       <div className="relative z-10">
         <h1 className="text-5xl md:text-7xl font-black mb-4 leading-tight">
-          RUCKING<br />NRC
+          GOOD<br />RUCK
         </h1>
         <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-md">
           Track your rucking journey. Build strength. Go the distance.
