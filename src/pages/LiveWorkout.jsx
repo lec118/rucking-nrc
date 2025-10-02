@@ -176,11 +176,6 @@ export default function LiveWorkout() {
     };
 
     addWorkout(workout);
-
-    // Reset after 3 seconds and go back
-    setTimeout(() => {
-      window.history.back();
-    }, 3000);
   };
 
   // Get initial GPS position on mount
@@ -409,9 +404,12 @@ export default function LiveWorkout() {
           )}
 
           {status === 'finished' && (
-            <div className="flex-1 bg-green-600 text-white font-bold py-4 px-6 rounded-xl text-center">
-              ✓ Workout Saved!
-            </div>
+            <button
+              onClick={() => window.history.back()}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-xl transition-colors"
+            >
+              ✓ Workout Saved! Go Back
+            </button>
           )}
         </div>
       </div>

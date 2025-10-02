@@ -6,6 +6,7 @@ import Hero from '../components/Hero';
 import WorkoutChart from '../components/WorkoutChart';
 import EffectivenessMetrics from '../components/EffectivenessMetrics';
 import BodyEffectiveness from '../components/BodyEffectiveness';
+import WorkoutTrace from '../components/WorkoutTrace';
 
 export default function Home() {
   const [showWorkoutDetails, setShowWorkoutDetails] = useState(false);
@@ -61,6 +62,10 @@ export default function Home() {
               <WorkoutList />
             </div>
           )}
+        </div>
+
+        <div className="mb-12">
+          <WorkoutTrace />
         </div>
 
         <div className="mb-12">
