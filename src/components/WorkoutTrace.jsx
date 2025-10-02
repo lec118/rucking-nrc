@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { useWorkout } from '../context/WorkoutContext';
 
 export default function WorkoutTrace() {
   const { workouts } = useWorkout();
+  const [expandedWorkout, setExpandedWorkout] = useState(null);
 
   if (workouts.length === 0) {
     return (
@@ -53,24 +55,50 @@ export default function WorkoutTrace() {
                   <div className="grid grid-cols-3 gap-3 mt-3">
                     <div className="bg-zinc-800/50 rounded p-2">
                       <p className="text-xs text-zinc-500">Distance</p>
-                      <p className="text-lg font-bold text-orange-400">{workout.distance} km</p>
+                      <p className="text-lg font-bold text-orange-400">{workout.distance.toFixed(1)} km</p>
                     </div>
                     <div className="bg-zinc-800/50 rounded p-2">
                       <p className="text-xs text-zinc-500">Time</p>
-                      <p className="text-lg font-bold text-blue-400">{workout.duration} min</p>
+                      <p className="text-lg font-bold text-blue-400">{workout.duration.toFixed(1)} min</p>
                     </div>
                     {workout.weight ? (
                       <div className="bg-zinc-800/50 rounded p-2">
                         <p className="text-xs text-zinc-500">Weight</p>
-                        <p className="text-lg font-bold text-purple-400">{workout.weight} kg</p>
+                        <p className="text-lg font-bold text-purple-400">{workout.weight.toFixed(1)} kg</p>
                       </div>
                     ) : (
                       <div className="bg-zinc-800/50 rounded p-2">
                         <p className="text-xs text-zinc-500">Pace</p>
-                        <p className="text-lg font-bold text-green-400">{workout.pace || '0.0'}</p>
+                        <p className="text-lg font-bold text-green-400">{workout.pace ? workout.pace.toFixed(1) : '0.0'}</p>
                       </div>
                     )}
                   </div>
+
+                  {/* GPS Route Map */}
+                  {workout.route && workout.route.length > 0 && (
+                    <div className="mt-4">
+                      <button
+                        onClick={() => setExpandedWorkout(expandedWorkout === workout.id ? null : workout.id)}
+                        className="text-sm text-zinc-400 hover:text-white transition-colors flex items-center gap-2"
+                      >
+                        <span>🗺️</span>
+                        <span>{expandedWorkout === workout.id ? 'Hide' : 'Show'} Route Map</span>
+                      </button>
+
+                      {expandedWorkout === workout.id && (
+                        <div className="mt-3 rounded-lg overflow-hidden border border-zinc-700">
+                          <iframe
+                            src={getMapUrl(workout.route)}
+                            className="w-full h-64 border-0"
+                            title={`Route map for ${workout.title}`}
+                          />
+                          <div className="bg-zinc-800 px-3 py-2 text-xs text-zinc-400">
+                            {workout.route.length} GPS points tracked
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -94,4 +122,26 @@ function getTimeAgo(date) {
   if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
 
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function getMapUrl(route) {
+  if (!route || route.length === 0) return '';
+
+  // Get center point (first GPS point)
+  const center = route[0];
+  const lat = center[0];
+  const lon = center[1];
+
+  // Calculate bounding box from all points
+  const lats = route.map(p => p[0]);
+  const lons = route.map(p => p[1]);
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLon = Math.min(...lons);
+  const maxLon = Math.max(...lons);
+
+  // Add padding
+  const padding = 0.005;
+
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${minLon-padding},${minLat-padding},${maxLon+padding},${maxLat+padding}&layer=mapnik&marker=${lat},${lon}`;
 }

@@ -43,16 +43,16 @@ function WorkoutCard({ workout, onDelete }) {
           <div className="flex gap-6">
             <div>
               <p className="text-zinc-500 text-xs mb-1">Distance</p>
-              <p className="text-2xl font-bold">{workout.distance} <span className="text-sm text-zinc-500">km</span></p>
+              <p className="text-2xl font-bold">{Number(workout.distance).toFixed(1)} <span className="text-sm text-zinc-500">km</span></p>
             </div>
             <div>
               <p className="text-zinc-500 text-xs mb-1">Duration</p>
-              <p className="text-2xl font-bold">{workout.duration} <span className="text-sm text-zinc-500">min</span></p>
+              <p className="text-2xl font-bold">{Number(workout.duration).toFixed(1)} <span className="text-sm text-zinc-500">min</span></p>
             </div>
             {workout.weight && (
               <div>
                 <p className="text-zinc-500 text-xs mb-1">Weight</p>
-                <p className="text-2xl font-bold">{workout.weight} <span className="text-sm text-zinc-500">kg</span></p>
+                <p className="text-2xl font-bold">{Number(workout.weight).toFixed(1)} <span className="text-sm text-zinc-500">kg</span></p>
               </div>
             )}
           </div>

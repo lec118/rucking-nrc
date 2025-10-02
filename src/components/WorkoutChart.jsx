@@ -14,7 +14,7 @@ const CustomTooltip = memo(({ active, payload, view }) => {
       <p className="text-sm font-medium mb-1">
         {view === 'daily' ? payload[0].payload.date : `Week of ${payload[0].payload.week}`}
       </p>
-      {distance && <p className="text-xs text-orange-400">Distance: {distance.value.toFixed(2)} km</p>}
+      {distance && <p className="text-xs text-orange-400">Distance: {distance.value.toFixed(1)} km</p>}
       {duration && <p className="text-xs text-pink-400">Duration: {duration.value} min</p>}
     </div>
   );

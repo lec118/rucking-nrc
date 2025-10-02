@@ -58,14 +58,11 @@ export default function Home() {
           </div>
 
           {showWorkoutDetails && (
-            <div className="mt-8">
+            <div className="mt-8 space-y-8">
+              <WorkoutTrace />
               <WorkoutList />
             </div>
           )}
-        </div>
-
-        <div className="mb-12">
-          <WorkoutTrace />
         </div>
 
         <div className="mb-12">
