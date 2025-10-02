@@ -291,44 +291,44 @@ export default function LiveWorkout() {
         </div>
       </div>
 
-      {/* GPS Tracking Display */}
-      <div className="flex-1 relative bg-gradient-to-br from-zinc-900 to-zinc-800 flex items-center justify-center">
+      {/* GPS Map Display */}
+      <div className="flex-1 relative bg-zinc-900">
         {currentPosition ? (
-          <div className="text-center p-8">
-            <div className="mb-8">
-              <div className="inline-block p-4 bg-green-500/20 rounded-full mb-4">
-                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-3xl animate-pulse">
-                  📍
-                </div>
+          <div className="h-full w-full relative">
+            {/* Map iframe */}
+            <iframe
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=${currentPosition[1]-0.01},${currentPosition[0]-0.01},${currentPosition[1]+0.01},${currentPosition[0]+0.01}&layer=mapnik&marker=${currentPosition[0]},${currentPosition[1]}`}
+              className="w-full h-full border-0"
+              title="GPS Map"
+            />
+
+            {/* Status overlay */}
+            <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-sm text-white px-4 py-2 rounded-lg">
+              <div className="flex items-center gap-2">
+                <div className={`w-3 h-3 rounded-full ${status === 'active' ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`}></div>
+                <span className="text-sm font-medium">
+                  {status === 'active' ? 'Recording' : 'GPS Connected'}
+                </span>
               </div>
-              <p className="text-green-400 font-bold text-lg">GPS Connected</p>
             </div>
 
-            <div className="bg-black/30 rounded-xl p-6 max-w-md">
-              <p className="text-zinc-400 text-sm mb-2">Current Location</p>
-              <p className="text-white font-mono text-lg">
-                {currentPosition[0].toFixed(6)}, {currentPosition[1].toFixed(6)}
-              </p>
-
-              {routePath.length > 1 && (
-                <div className="mt-4 pt-4 border-t border-zinc-700">
-                  <p className="text-zinc-400 text-sm mb-2">Route Points</p>
-                  <p className="text-white text-2xl font-bold">{routePath.length}</p>
-                </div>
-              )}
-            </div>
-
-            <p className="text-zinc-500 text-sm mt-6">
-              {status === 'active' ? '🔴 Recording...' : 'Ready to start'}
-            </p>
+            {/* Route info overlay */}
+            {routePath.length > 1 && (
+              <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-sm text-white px-4 py-2 rounded-lg">
+                <p className="text-xs text-zinc-400">Route Points</p>
+                <p className="text-lg font-bold">{routePath.length}</p>
+              </div>
+            )}
           </div>
         ) : (
-          <div className="text-center p-8">
-            <div className="animate-pulse mb-6">
-              <div className="w-20 h-20 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="h-full flex items-center justify-center">
+            <div className="text-center p-8">
+              <div className="animate-pulse mb-6">
+                <div className="w-20 h-20 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+              </div>
+              <p className="text-zinc-300 text-xl font-bold mb-2">Requesting GPS Permission...</p>
+              <p className="text-zinc-500 text-sm">Please allow location access when prompted</p>
             </div>
-            <p className="text-zinc-300 text-xl font-bold mb-2">Requesting GPS Permission...</p>
-            <p className="text-zinc-500 text-sm">Please allow location access when prompted</p>
           </div>
         )}
       </div>
