@@ -78,7 +78,7 @@ export default function EffectivenessMetrics() {
           </div>
           <div className="text-4xl font-bold text-pink-400">
             {stats.consistency}<span className="text-lg text-zinc-500 ml-1">
-              {period === 'daily' ? 'today' : period === 'weekly' ? 'this week' : 'workouts/week'}
+              {period === 'daily' ? 'today' : period === 'weekly' ? 'this week' : 'this month'}
             </span>
           </div>
           <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
@@ -94,7 +94,7 @@ export default function EffectivenessMetrics() {
           <p className="text-xs text-zinc-500">
             {period === 'daily' && 'Keep the streak going!'}
             {period === 'weekly' && 'Workouts this week'}
-            {period === 'monthly' && 'Average per week this month'}
+            {period === 'monthly' && 'Workouts this month'}
           </p>
         </div>
 
