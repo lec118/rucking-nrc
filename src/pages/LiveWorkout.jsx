@@ -657,7 +657,13 @@ export default function LiveWorkout() {
           </div>
           <div className="bg-[#1C2321]/70 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-4 overflow-hidden">
             <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-1">TIME</p>
-            <p className="text-lg font-mono font-bold text-[#E5ECE8] metric-time whitespace-nowrap tabular-nums" style={{ fontSize: 'clamp(1rem, 4vw, 1.5rem)', letterSpacing: '-0.02em' }} aria-label="elapsed-time-hh-mm-ss">{timeHMS}</p>
+            <p
+              className={`font-mono font-bold text-[#E5ECE8] metric-time whitespace-nowrap tabular-nums ${elapsedMs < 3600000 ? 'text-2xl' : 'text-xl'}`}
+              style={{ letterSpacing: elapsedMs < 3600000 ? '0' : '-0.05em' }}
+              aria-label="elapsed-time"
+            >
+              {timeHMS}
+            </p>
           </div>
           <div className="bg-[#1C2321]/70 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-4">
             <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-1">AVG SPEED</p>
