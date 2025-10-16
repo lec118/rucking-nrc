@@ -58,7 +58,7 @@ export default function LiveWorkout() {
   const [setupFormError, setSetupFormError] = useState(null);
   const [saveError, setSaveError] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [duration, setDuration] = useState(0); // in seconds
+  const [elapsedMs, setElapsedMs] = useState(0); // in milliseconds (changed from duration in seconds)
   const [distance, setDistance] = useState(0); // in km
   const [routePath, setRoutePath] = useState([]); // GPS coordinates
   const [currentPosition, setCurrentPosition] = useState(null);
@@ -68,6 +68,7 @@ export default function LiveWorkout() {
   // Refs
   const watchId = useRef(null);
   const timerInterval = useRef(null);
+  const timerTimeout = useRef(null); // For initial alignment to second boundary
   const lastPosition = useRef(null);
   const startTime = useRef(null);
   const pausedTime = useRef(0);
@@ -177,24 +178,46 @@ export default function LiveWorkout() {
     }
   };
 
-  // Start timer
+  // Start timer aligned to second boundary
   const startTimer = () => {
     startTime.current = Date.now();
     console.log(`⏰ Timer started at ${new Date(startTime.current).toLocaleTimeString()}`);
 
-    timerInterval.current = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - startTime.current - pausedTime.current) / 1000);
-      setDuration(elapsed);
-    }, 1000);
+    // Calculate current elapsed time
+    const updateElapsed = () => {
+      const elapsed = Date.now() - startTime.current - pausedTime.current;
+      setElapsedMs(elapsed);
+    };
+
+    // Initial update
+    updateElapsed();
+
+    // Calculate time until next second boundary
+    const now = Date.now();
+    const msUntilNextSecond = 1000 - (now % 1000);
+
+    // Align to next second boundary
+    timerTimeout.current = setTimeout(() => {
+      updateElapsed();
+
+      // Now start interval at exact 1-second intervals
+      timerInterval.current = setInterval(() => {
+        updateElapsed();
+      }, 1000);
+    }, msUntilNextSecond);
   };
 
   // Stop timer
   const stopTimer = () => {
+    if (timerTimeout.current) {
+      clearTimeout(timerTimeout.current);
+      timerTimeout.current = null;
+    }
     if (timerInterval.current) {
       clearInterval(timerInterval.current);
       timerInterval.current = null;
-      console.log('⏸️ Timer stopped');
     }
+    console.log('⏸️ Timer stopped');
   };
 
   // Handle Start
@@ -280,7 +303,7 @@ export default function LiveWorkout() {
     setIsSaving(true);
 
     const distanceKm = parseFloat(distance.toFixed(2));
-    const durationMinutes = parseFloat((duration / 60).toFixed(1));
+    const durationMinutes = parseFloat((elapsedMs / (1000 * 60)).toFixed(1)); // Convert ms to minutes
     const derivedPace = distanceKm > 0
       ? parseFloat((durationMinutes / distanceKm).toFixed(1))
       : null;
@@ -326,7 +349,7 @@ export default function LiveWorkout() {
     // Reset all state
     setStatus('setup');
     setDistance(0);
-    setDuration(0);
+    setElapsedMs(0); // Changed from setDuration
     setRoutePath([]);
     setCurrentPosition(null);
     setCurrentPace(0);
@@ -358,20 +381,21 @@ export default function LiveWorkout() {
 
   // Update average pace
   useEffect(() => {
-    if (distance > 0 && duration > 0) {
-      const avgPaceValue = (duration / 60) / distance;
+    if (distance > 0 && elapsedMs > 0) {
+      const timeInMinutes = elapsedMs / (1000 * 60);
+      const avgPaceValue = timeInMinutes / distance;
       setAvgPace(avgPaceValue);
     }
-  }, [distance, duration]);
+  }, [distance, elapsedMs]);
 
   // Update current pace
   useEffect(() => {
-    if (distance > 0 && duration > 0) {
-      const timeInMinutes = duration / 60;
+    if (distance > 0 && elapsedMs > 0) {
+      const timeInMinutes = elapsedMs / (1000 * 60);
       const paceValue = timeInMinutes / distance;
       setCurrentPace(paceValue);
     }
-  }, [distance, duration]);
+  }, [distance, elapsedMs]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -390,8 +414,8 @@ export default function LiveWorkout() {
 
   // Calculate formatted metrics for display
   const distanceKm = toKm(distance * 1000); // Convert to meters first, then format to "0.00"
-  const timeHMS = formatHMS(duration * 1000); // Convert seconds to ms, then format to "HH:MM:SS"
-  const avgSpeedDisplay = toAvgSpeedKmh(distance, duration * 1000); // distance in km, duration in ms
+  const timeHMS = formatHMS(elapsedMs); // Already in ms, format to "HH:MM:SS"
+  const avgSpeedDisplay = toAvgSpeedKmh(distance, elapsedMs); // distance in km, elapsedMs in ms
 
   // Summary Screen
   if (status === 'summary') {
@@ -399,7 +423,7 @@ export default function LiveWorkout() {
       <WorkoutSummary
         path={routePath}
         totalDist={distance * 1000} // Convert km to meters
-        elapsedMs={duration * 1000} // Convert seconds to ms
+        elapsedMs={elapsedMs} // Already in ms
         onStartNew={handleStartNew}
       />
     );
@@ -581,7 +605,7 @@ export default function LiveWorkout() {
                   </div>
                   <div className="flex justify-between gap-4">
                     <span className="text-[#6B7872]">TIMER:</span>
-                    <span className="text-[#E5ECE8] tabular-nums">{duration}s</span>
+                    <span className="text-[#E5ECE8] tabular-nums">{Math.floor(elapsedMs / 1000)}s</span>
                   </div>
                   <div className="flex justify-between gap-4">
                     <span className="text-[#6B7872]">DIST:</span>
@@ -633,7 +657,7 @@ export default function LiveWorkout() {
           </div>
           <div className="bg-[#1C2321]/70 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-4">
             <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-1">TIME</p>
-            <p className="text-2xl font-mono font-bold text-[#E5ECE8] tabular-nums" aria-label="elapsed-time-hh-mm-ss">{timeHMS}</p>
+            <p className="text-2xl font-bold text-[#E5ECE8] metric-time" aria-label="elapsed-time-hh-mm-ss">{timeHMS}</p>
           </div>
           <div className="bg-[#1C2321]/70 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-4">
             <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-1">AVG SPEED</p>

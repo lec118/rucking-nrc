@@ -37,3 +37,11 @@
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1;
 }
+
+/* Monospace time display - ensures consistent 8-character width for HH:MM:SS */
+.metric-time {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
