@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { ManualWorkoutSchema, WorkoutSubmitSchema, validateWorkout } from '../schemas/workout.schema';
+import { createClientValidationError, formatFormErrorMessage, toFieldErrors } from '../utils/formValidation';
 import { useWorkout } from '../context/WorkoutContext';
 
 export default function AddWorkoutModal({ onClose }) {
@@ -9,24 +11,76 @@ export default function AddWorkoutModal({ onClose }) {
     duration: '',
     weight: ''
   });
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [formError, setFormError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    addWorkout({
-      title: formData.title || 'Manual Workout',
-      distance: parseFloat(formData.distance) || 0,
-      duration: parseFloat(formData.duration) || 0,
-      weight: formData.weight ? parseFloat(formData.weight) : null,
+    setFieldErrors({});
+    setFormError(null);
+
+    const manualResult = validateWorkout(ManualWorkoutSchema, {
+      ...formData,
       date: new Date().toISOString()
     });
-    onClose();
+
+    if (!manualResult.success) {
+      const errors = toFieldErrors(manualResult.errors);
+      setFieldErrors(errors);
+      setFormError(createClientValidationError(errors));
+      return;
+    }
+
+    const manualData = manualResult.data;
+    const pace = Number((manualData.duration / manualData.distance).toFixed(1));
+
+    const submitResult = validateWorkout(WorkoutSubmitSchema, {
+      title: manualData.title?.trim() || 'Manual Workout',
+      distance: manualData.distance,
+      duration: manualData.duration,
+      pace,
+      weight: manualData.weight,
+      date: manualData.date,
+      route: null
+    });
+
+    if (!submitResult.success) {
+      const errors = toFieldErrors(submitResult.errors);
+      setFieldErrors(errors);
+      setFormError(createClientValidationError(errors));
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await addWorkout(submitResult.data);
+      onClose();
+    } catch (error) {
+      if (error?.formError) {
+        setFormError(error.formError);
+      }
+      if (error?.fieldErrors) {
+        setFieldErrors(error.fieldErrors);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [name]: value
     }));
+    if (fieldErrors[name]) {
+      const { [name]: _removed, ...rest } = fieldErrors;
+      setFieldErrors(rest);
+    }
+    if (formError) {
+      setFormError(null);
+    }
   };
 
   return (
@@ -45,6 +99,12 @@ export default function AddWorkoutModal({ onClose }) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {formError && (
+            <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              {formatFormErrorMessage(formError)}
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-zinc-400 mb-2">
               Workout Title
@@ -57,6 +117,9 @@ export default function AddWorkoutModal({ onClose }) {
               placeholder="Morning Ruck"
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition-colors"
             />
+            {fieldErrors.title && (
+              <p className="mt-2 text-xs text-red-300">{fieldErrors.title}</p>
+            )}
           </div>
 
           <div>
@@ -73,6 +136,9 @@ export default function AddWorkoutModal({ onClose }) {
               placeholder="5.0"
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition-colors"
             />
+            {fieldErrors.distance && (
+              <p className="mt-2 text-xs text-red-300">{fieldErrors.distance}</p>
+            )}
           </div>
 
           <div>
@@ -88,6 +154,9 @@ export default function AddWorkoutModal({ onClose }) {
               placeholder="45"
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition-colors"
             />
+            {fieldErrors.duration && (
+              <p className="mt-2 text-xs text-red-300">{fieldErrors.duration}</p>
+            )}
           </div>
 
           <div>
@@ -103,6 +172,9 @@ export default function AddWorkoutModal({ onClose }) {
               placeholder="10.0"
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition-colors"
             />
+            {fieldErrors.weight && (
+              <p className="mt-2 text-xs text-red-300">{fieldErrors.weight}</p>
+            )}
           </div>
 
           <div className="flex gap-3 pt-4">
@@ -115,9 +187,10 @@ export default function AddWorkoutModal({ onClose }) {
             </button>
             <button
               type="submit"
+              disabled={isSubmitting}
               className="flex-1 px-6 py-3 rounded-full bg-gradient-to-r from-orange-500 to-pink-600 text-white hover:opacity-90 transition-opacity font-bold"
             >
-              Add Workout
+              {isSubmitting ? 'Saving...' : 'Add Workout'}
             </button>
           </div>
         </form>

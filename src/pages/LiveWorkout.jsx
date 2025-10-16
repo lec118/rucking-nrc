@@ -655,9 +655,9 @@ export default function LiveWorkout() {
             <p className="text-2xl font-mono font-bold text-[#E5ECE8] tabular-nums" aria-label="distance-kilometers">{distanceKm}</p>
             <p className="text-xs font-mono text-[#6B7872]">km</p>
           </div>
-          <div className="bg-[#1C2321]/70 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-4">
+          <div className="bg-[#1C2321]/70 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-4 overflow-hidden">
             <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-1">TIME</p>
-            <p className="text-xl sm:text-2xl font-mono font-bold text-[#E5ECE8] metric-time whitespace-nowrap tabular-nums" aria-label="elapsed-time-hh-mm-ss">{timeHMS}</p>
+            <p className="text-lg font-mono font-bold text-[#E5ECE8] metric-time whitespace-nowrap tabular-nums" style={{ fontSize: 'clamp(1rem, 4vw, 1.5rem)', letterSpacing: '-0.02em' }} aria-label="elapsed-time-hh-mm-ss">{timeHMS}</p>
           </div>
           <div className="bg-[#1C2321]/70 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-4">
             <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-1">AVG SPEED</p>
