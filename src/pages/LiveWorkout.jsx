@@ -6,6 +6,8 @@ import { LiveWorkoutSetupSchema, WorkoutSubmitSchema, validateWorkout } from '..
 import { createClientValidationError, formatFormErrorMessage, toFieldErrors } from '../utils/formValidation';
 import { useWorkout } from '../context/WorkoutContext';
 import WorkoutSummary from '../components/WorkoutSummary';
+import { formatHMS, toKm, toAvgSpeedKmh } from '../utils/format';
+import { requestWakeLock, releaseWakeLock, setupWakeLockVisibilityHandler } from '../utils/wakeLock';
 import 'leaflet/dist/leaflet.css';
 
 // Calculate distance between two GPS coordinates (Haversine formula)
@@ -21,13 +23,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   return R * c; // Distance in km
 }
 
-// Format time as HH:MM:SS
-function formatTime(seconds) {
-  const hrs = Math.floor(seconds / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
-  return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-}
+// Note: formatTime function removed - now using formatHMS from utils/format.ts
 
 // Default Leaflet marker icons
 const currentIcon = new Icon({
@@ -202,11 +198,12 @@ export default function LiveWorkout() {
   };
 
   // Handle Start
-  const handleStart = () => {
+  const handleStart = async () => {
     console.log('▶️ Starting workout...');
     setStatus('active');
     startGPS();
     startTimer();
+    await requestWakeLock(); // Keep screen on during workout
   };
 
   // Handle Pause
@@ -221,11 +218,12 @@ export default function LiveWorkout() {
   };
 
   // Handle Resume
-  const handleResume = () => {
+  const handleResume = async () => {
     console.log('▶️ Resuming workout...');
     setStatus('active');
     startTime.current = Date.now();
     startTimer();
+    await requestWakeLock(); // Re-request wake lock on resume
   };
 
   const handleSetupChange = (field, value) => {
@@ -277,6 +275,7 @@ export default function LiveWorkout() {
 
     stopTimer();
     stopGPS();
+    await releaseWakeLock(); // Release wake lock when stopping
     setSaveError(null);
     setIsSaving(true);
 
@@ -379,10 +378,20 @@ export default function LiveWorkout() {
     return () => {
       stopTimer();
       stopGPS();
+      releaseWakeLock();
     };
   }, []);
 
-  const currentSpeed = currentPace > 0 ? (60 / currentPace).toFixed(1) : '0.0';
+  // Setup wake lock visibility handler
+  useEffect(() => {
+    const cleanup = setupWakeLockVisibilityHandler(() => status === 'active');
+    return cleanup;
+  }, [status]);
+
+  // Calculate formatted metrics for display
+  const distanceKm = toKm(distance * 1000); // Convert to meters first, then format to "0.00"
+  const timeHMS = formatHMS(duration * 1000); // Convert seconds to ms, then format to "HH:MM:SS"
+  const avgSpeedDisplay = toAvgSpeedKmh(distance, duration * 1000); // distance in km, duration in ms
 
   // Summary Screen
   if (status === 'summary') {
@@ -619,17 +628,17 @@ export default function LiveWorkout() {
         <div className="grid grid-cols-3 gap-3 mb-6 max-w-2xl mx-auto">
           <div className="bg-[#1C2321]/70 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-4">
             <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-1">DISTANCE</p>
-            <p className="text-2xl font-mono font-bold text-[#E5ECE8] tabular-nums">{distance.toFixed(1)}</p>
+            <p className="text-2xl font-mono font-bold text-[#E5ECE8] tabular-nums" aria-label="distance-kilometers">{distanceKm}</p>
             <p className="text-xs font-mono text-[#6B7872]">km</p>
           </div>
           <div className="bg-[#1C2321]/70 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-4">
             <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-1">TIME</p>
-            <p className="text-2xl font-mono font-bold text-[#E5ECE8] tabular-nums">{formatTime(duration)}</p>
+            <p className="text-2xl font-mono font-bold text-[#E5ECE8] tabular-nums" aria-label="elapsed-time-hh-mm-ss">{timeHMS}</p>
           </div>
           <div className="bg-[#1C2321]/70 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-4">
-            <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-1">AVG PACE</p>
-            <p className="text-2xl font-mono font-bold text-[#E5ECE8] tabular-nums">{avgPace > 0 ? avgPace.toFixed(1) : '--'}</p>
-            <p className="text-xs font-mono text-[#6B7872]">min/km</p>
+            <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-1">AVG SPEED</p>
+            <p className="text-2xl font-mono font-bold text-[#E5ECE8] tabular-nums" aria-label="average-speed-kmh">{avgSpeedDisplay}</p>
+            <p className="text-xs font-mono text-[#6B7872]">km/h</p>
           </div>
         </div>
 

@@ -1,3 +1,39 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    /* Tactical Color System */
+    --tactical-black: #0A0E0D;
+    --tactical-charcoal: #1C2321;
+    --tactical-graphite: #2D3A35;
+    --tactical-slate: #404F49;
+
+    /* Brand Green */
+    --tactical-green: #00B46E;
+    --tactical-green-dim: #008556;
+    --tactical-green-dark: #00573B;
+
+    /* Data Colors */
+    --data-primary: #E5ECE8;
+    --data-secondary: #A8B5AF;
+    --data-tertiary: #6B7872;
+
+    /* Accent Colors */
+    --accent-active: #00FF88;
+    --accent-warning: #FFB800;
+    --accent-danger: #FF4444;
+  }
+}
+
+/* Map Dark Filter */
+.map-dark-filter {
+  filter: brightness(0.65) saturate(0.5) contrast(1.15) hue-rotate(5deg);
+}
+
+/* Tabular Numbers - ensures consistent width for numeric values */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}

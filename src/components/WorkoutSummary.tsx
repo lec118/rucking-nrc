@@ -2,20 +2,8 @@
 import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
 import { Icon } from 'leaflet';
 import type { WorkoutSummaryProps, LatLng } from '../types/workout';
+import { formatHMS, toKm, toAvgSpeedKmh } from '../utils/format';
 import 'leaflet/dist/leaflet.css';
-
-// Format milliseconds to mm:ss
-function formatDuration(ms: number): string {
-  const totalSeconds = Math.floor(ms / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  }
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-}
 
 // Default Leaflet marker icons (fix for webpack)
 const startIcon = new Icon({
@@ -37,11 +25,9 @@ const endIcon = new Icon({
 });
 
 export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew }: WorkoutSummaryProps) {
-  const totalDistKm = (totalDist / 1000).toFixed(2);
-  const durationStr = formatDuration(elapsedMs);
-  const avgSpeedKmh = totalDist > 0 && elapsedMs > 0
-    ? ((totalDist / 1000) / (elapsedMs / 1000 / 3600)).toFixed(1)
-    : '0.0';
+  const totalDistKm = toKm(totalDist); // "0.00" format
+  const durationStr = formatHMS(elapsedMs); // "HH:MM:SS" format
+  const avgSpeedKmh = toAvgSpeedKmh(totalDist / 1000, elapsedMs); // "5.3" or "--"
 
   // Calculate map center and bounds
   const center: LatLng = path.length > 0
@@ -112,7 +98,7 @@ export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew 
             <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-2">
               TOTAL DISTANCE
             </p>
-            <p className="text-3xl font-mono font-bold text-[#00B46E] tabular-nums">
+            <p className="text-3xl font-mono font-bold text-[#00B46E] tabular-nums" aria-label="distance-kilometers">
               {totalDistKm}
             </p>
             <p className="text-xs font-mono text-[#6B7872] mt-1">kilometers</p>
@@ -123,7 +109,7 @@ export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew 
             <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-2">
               TOTAL TIME
             </p>
-            <p className="text-3xl font-mono font-bold text-[#E5ECE8] tabular-nums">
+            <p className="text-3xl font-mono font-bold text-[#E5ECE8] tabular-nums" aria-label="elapsed-time-hh-mm-ss">
               {durationStr}
             </p>
             <p className="text-xs font-mono text-[#6B7872] mt-1">duration</p>
@@ -134,7 +120,7 @@ export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew 
             <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-2">
               AVG SPEED
             </p>
-            <p className="text-3xl font-mono font-bold text-[#E5ECE8] tabular-nums">
+            <p className="text-3xl font-mono font-bold text-[#E5ECE8] tabular-nums" aria-label="average-speed-kmh">
               {avgSpeedKmh}
             </p>
             <p className="text-xs font-mono text-[#6B7872] mt-1">km/h</p>
