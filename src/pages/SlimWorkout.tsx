@@ -421,34 +421,21 @@ export default function SlimWorkout() {
     };
   }, [screen, session]);
 
-  // 시간 업데이트
+  // 시간 업데이트 - 1초마다 업데이트 (60fps 대신)
   useEffect(() => {
     if (screen !== 'live') return;
 
-    console.log('[타이머] 시작됨');
-
-    const update = () => {
+    const intervalId = setInterval(() => {
       if (sessionRef.current) {
-        const now = performance.now();
-        const elapsed = getElapsedTime(sessionRef.current, now);
-        console.log('[타이머]', {
-          state: sessionRef.current.state,
-          startMonotonic: sessionRef.current.startMonotonic,
-          now,
-          elapsed,
-          elapsedSec: Math.floor(elapsed / 1000)
-        });
+        const elapsed = getElapsedTime(sessionRef.current, performance.now());
         setElapsedMs(elapsed);
       }
-      rafRef.current = requestAnimationFrame(update);
-    };
-    update();
+    }, 100); // 100ms마다 업데이트 (충분히 부드러움)
 
     return () => {
-      console.log('[타이머] 중지됨');
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      clearInterval(intervalId);
     };
-  }, [screen]); // sessionRef 사용으로 최신 상태 항상 참조
+  }, [screen]);
 
   const handlePause = () => {
     if (!session) return;
