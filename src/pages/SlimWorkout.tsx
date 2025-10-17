@@ -497,6 +497,15 @@ export default function SlimWorkout() {
     const paceStr = formatPace(session.currentPace);
     const elevGain = session.elevationGain.toFixed(0);
 
+    // 디버깅 로그
+    console.log('[LIVE]', {
+      state: session.state,
+      elapsedMs,
+      timeHMS,
+      startMonotonic: session.startMonotonic,
+      now: performance.now()
+    });
+
     return (
       <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
         <div ref={mapContainerRef} style={{ position: 'absolute', inset: 0 }} />
