@@ -425,9 +425,19 @@ export default function SlimWorkout() {
   useEffect(() => {
     if (screen !== 'live') return;
 
+    console.log('[타이머] 시작됨');
+
     const update = () => {
       if (sessionRef.current) {
-        const elapsed = getElapsedTime(sessionRef.current, performance.now());
+        const now = performance.now();
+        const elapsed = getElapsedTime(sessionRef.current, now);
+        console.log('[타이머]', {
+          state: sessionRef.current.state,
+          startMonotonic: sessionRef.current.startMonotonic,
+          now,
+          elapsed,
+          elapsedSec: Math.floor(elapsed / 1000)
+        });
         setElapsedMs(elapsed);
       }
       rafRef.current = requestAnimationFrame(update);
@@ -435,6 +445,7 @@ export default function SlimWorkout() {
     update();
 
     return () => {
+      console.log('[타이머] 중지됨');
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [screen]); // sessionRef 사용으로 최신 상태 항상 참조
