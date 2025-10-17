@@ -4,8 +4,6 @@ import StatsCard from '../components/StatsCard';
 import WorkoutList from '../components/WorkoutList';
 import Hero from '../components/Hero';
 import WorkoutChart from '../components/WorkoutChart';
-import EffectivenessMetrics from '../components/EffectivenessMetrics';
-import BodyEffectiveness from '../components/BodyEffectiveness';
 import WorkoutTrace from '../components/WorkoutTrace';
 
 export default function Home() {
@@ -67,14 +65,6 @@ export default function Home() {
 
         <div className="mb-12">
           <WorkoutChart />
-        </div>
-
-        <div className="mb-12">
-          <EffectivenessMetrics />
-        </div>
-
-        <div className="mb-12">
-          <BodyEffectiveness />
         </div>
       </section>
     </div>
