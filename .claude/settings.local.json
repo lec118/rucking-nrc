@@ -23,7 +23,17 @@
       "Bash(gh repo view:*)",
       "Bash(vercel --version:*)",
       "Bash(vercel:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(if not exist domain mkdir domain)",
+      "Bash(if not exist lib mkdir lib)",
+      "Bash(if not exist services mkdir services)",
+      "Bash(if not exist featureslive mkdir featureslive)",
+      "Bash(if not exist testsunit mkdir testsunit)",
+      "Bash(if not exist pwa mkdir pwa)",
+      "Bash(if not exist ios-wrapper mkdir ios-wrapper)",
+      "Bash(if not exist iosApp mkdir iosApp)",
+      "Bash(if not exist .githubworkflows mkdir .githubworkflows)",
+      "Bash(if not exist .husky mkdir .husky)"
     ],
     "deny": [],
     "ask": []

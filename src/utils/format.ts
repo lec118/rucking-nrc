@@ -2,18 +2,24 @@
 // Formatting utilities for time, distance, and speed
 
 /**
- * Format milliseconds to HH:MM:SS
+ * Format milliseconds to MM:SS or HH:MM:SS
  * @param ms - Time in milliseconds
- * @returns Formatted string "HH:MM:SS" with zero-padding
+ * @returns Formatted string "MM:SS" for <1hr, "HH:MM:SS" for ≥1hr
  */
 export function formatHMS(ms: number): string {
-  if (ms < 0 || !isFinite(ms)) return '00:00:00';
+  if (ms < 0 || !isFinite(ms)) return '00:00';
 
   const totalSeconds = Math.floor(ms / 1000);
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
 
+  // Return MM:SS for under 1 hour
+  if (hours === 0) {
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  // Return HH:MM:SS for 1 hour or more
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
