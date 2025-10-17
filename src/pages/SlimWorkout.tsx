@@ -110,8 +110,8 @@ function updateLocation(
     if (delta > 0) addedGain = delta;
   }
 
-  const STOPPED_SPEED_THRESHOLD = 0.4;
-  const STOPPED_DURATION_THRESHOLD = 5000;
+  const STOPPED_SPEED_THRESHOLD = 0.3; // 0.4 → 0.3 (더 민감하게)
+  const STOPPED_DURATION_THRESHOLD = 3000; // 5000 → 3000 (3초로 단축)
 
   let newStoppedDur = s.stoppedDuration;
   let newMovingDist = s.movingDistance;
@@ -184,9 +184,9 @@ let kalmanErr = 1;
 
 function smoothSpeed(raw: number): number {
   speedBuffer.push(raw);
-  if (speedBuffer.length > 5) speedBuffer.shift();
+  if (speedBuffer.length > 3) speedBuffer.shift(); // 5 → 3 (더 빠른 반응)
   const avg = speedBuffer.reduce((a, b) => a + b, 0) / speedBuffer.length;
-  const Q = 0.01, R = 0.1;
+  const Q = 0.02, R = 0.05; // Q, R 증가 (더 빠른 반응)
   const predErr = kalmanErr + Q;
   const gain = predErr / (predErr + R);
   kalmanEst = kalmanEst + gain * (avg - kalmanEst);
@@ -309,6 +309,12 @@ export default function SlimWorkout() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const gpsIdRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
+  const sessionRef = useRef<WorkoutSession | null>(null);
+
+  // sessionRef 동기화
+  useEffect(() => {
+    sessionRef.current = session;
+  }, [session]);
 
   // 운동 시작
   const handleStart = () => {
@@ -420,8 +426,8 @@ export default function SlimWorkout() {
     if (screen !== 'live') return;
 
     const update = () => {
-      if (session) {
-        const elapsed = getElapsedTime(session, performance.now());
+      if (sessionRef.current) {
+        const elapsed = getElapsedTime(sessionRef.current, performance.now());
         setElapsedMs(elapsed);
       }
       rafRef.current = requestAnimationFrame(update);
@@ -431,7 +437,7 @@ export default function SlimWorkout() {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [screen]); // session 제거 - 내부에서 직접 참조
+  }, [screen]); // sessionRef 사용으로 최신 상태 항상 참조
 
   const handlePause = () => {
     if (!session) return;
