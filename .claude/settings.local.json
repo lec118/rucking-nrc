@@ -22,7 +22,8 @@
       "Bash(npm run preview:*)",
       "Bash(gh repo view:*)",
       "Bash(vercel --version:*)",
-      "Bash(vercel:*)"
+      "Bash(vercel:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []
