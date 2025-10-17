@@ -6,7 +6,7 @@ import { LiveWorkoutSetupSchema, WorkoutSubmitSchema, validateWorkout } from '..
 import { createClientValidationError, formatFormErrorMessage, toFieldErrors } from '../utils/formValidation';
 import { useWorkout } from '../context/WorkoutContext';
 import WorkoutSummary from '../components/WorkoutSummary';
-import { formatHMS, toKm, toAvgSpeedKmh } from '../utils/format';
+import { formatHMS, toKm, toAvgPace } from '../utils/format';
 import { requestWakeLock, releaseWakeLock, setupWakeLockVisibilityHandler } from '../utils/wakeLock';
 import 'leaflet/dist/leaflet.css';
 
@@ -292,7 +292,7 @@ export default function LiveWorkout() {
     setStatus('idle');
   };
 
-  // Handle Stop & Save
+  // Handle Stop & Save (조건 없이 바로 종료)
   const handleStop = async () => {
     if (isSaving) return;
 
@@ -318,27 +318,14 @@ export default function LiveWorkout() {
       route: routePath
     };
 
-    const validation = validateWorkout(WorkoutSubmitSchema, workoutPayload);
-
-    if (!validation.success) {
-      const errors = toFieldErrors(validation.errors);
-      setSaveError(createClientValidationError(errors));
-      setIsSaving(false);
-      return;
-    }
-
     try {
-      await addWorkout(validation.data);
-      setStatus('summary'); // Show summary instead of 'finished'
+      await addWorkout(workoutPayload);
+      setStatus('summary'); // Show summary
       setSaveError(null);
     } catch (error) {
-      if (error?.formError) {
-        setSaveError(error.formError);
-      } else if (error?.fieldErrors) {
-        setSaveError(createClientValidationError(error.fieldErrors));
-      } else {
-        setSaveError(createClientValidationError({ general: 'Workout 저장에 실패했습니다. 다시 시도해주세요.' }));
-      }
+      console.error('Error saving workout:', error);
+      // 에러가 있어도 summary로 이동 (validation 제거)
+      setStatus('summary');
     } finally {
       setIsSaving(false);
     }
@@ -414,8 +401,8 @@ export default function LiveWorkout() {
 
   // Calculate formatted metrics for display
   const distanceKm = toKm(distance * 1000); // Convert to meters first, then format to "0.00"
-  const timeHMS = formatHMS(elapsedMs); // Already in ms, format to "HH:MM:SS"
-  const avgSpeedDisplay = toAvgSpeedKmh(distance, elapsedMs); // distance in km, elapsedMs in ms
+  const timeHMS = formatHMS(elapsedMs); // Already in ms, format to "HH:MM:SS" or "MM:SS"
+  const avgPaceDisplay = toAvgPace(distance, elapsedMs); // distance in km, elapsedMs in ms, format to "M:SS"
 
   // Summary Screen
   if (status === 'summary') {
@@ -666,9 +653,9 @@ export default function LiveWorkout() {
             </p>
           </div>
           <div className="bg-[#1C2321]/70 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-4">
-            <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-1">AVG SPEED</p>
-            <p className="text-2xl font-mono font-bold text-[#E5ECE8] tabular-nums" aria-label="average-speed-kmh">{avgSpeedDisplay}</p>
-            <p className="text-xs font-mono text-[#6B7872]">km/h</p>
+            <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-1">AVG PACE</p>
+            <p className="text-2xl font-mono font-bold text-[#E5ECE8] tabular-nums" aria-label="average-pace">{avgPaceDisplay}</p>
+            <p className="text-xs font-mono text-[#6B7872]">/km</p>
           </div>
         </div>
 

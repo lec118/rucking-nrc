@@ -55,3 +55,25 @@ export function toAvgSpeedKmh(distanceKm: number, elapsedMs: number): string {
 
   return speedKmh.toFixed(1);
 }
+
+/**
+ * Calculate average pace in min/km format (e.g., "5:30")
+ * @param distanceKm - Distance in kilometers
+ * @param elapsedMs - Elapsed time in milliseconds
+ * @returns Formatted string "M:SS" or "--:--" if invalid
+ */
+export function toAvgPace(distanceKm: number, elapsedMs: number): string {
+  if (!isFinite(distanceKm) || !isFinite(elapsedMs) || distanceKm <= 0 || elapsedMs <= 0) {
+    return '--:--';
+  }
+
+  const minutes = elapsedMs / (1000 * 60);
+  const paceMinPerKm = minutes / distanceKm;
+
+  if (!isFinite(paceMinPerKm) || paceMinPerKm <= 0) return '--:--';
+
+  const paceMinutes = Math.floor(paceMinPerKm);
+  const paceSeconds = Math.round((paceMinPerKm - paceMinutes) * 60);
+
+  return `${paceMinutes}:${paceSeconds.toString().padStart(2, '0')}`;
+}
