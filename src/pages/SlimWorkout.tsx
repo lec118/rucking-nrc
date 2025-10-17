@@ -417,11 +417,13 @@ export default function SlimWorkout() {
 
   // 시간 업데이트
   useEffect(() => {
-    if (screen !== 'live' || !session) return;
+    if (screen !== 'live') return;
 
     const update = () => {
-      const elapsed = getElapsedTime(session, performance.now());
-      setElapsedMs(elapsed);
+      if (session) {
+        const elapsed = getElapsedTime(session, performance.now());
+        setElapsedMs(elapsed);
+      }
       rafRef.current = requestAnimationFrame(update);
     };
     update();
@@ -429,7 +431,7 @@ export default function SlimWorkout() {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [screen, session]);
+  }, [screen]); // session 제거 - 내부에서 직접 참조
 
   const handlePause = () => {
     if (!session) return;
