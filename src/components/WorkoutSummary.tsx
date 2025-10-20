@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
 import { Icon } from 'leaflet';
 import type { WorkoutSummaryProps, LatLng } from '../types/workout';
 import { formatHMS, toKm, toAvgPace } from '../utils/format';
+import { calculateWorkoutBenefits } from '../../lib/workoutBenefits';
 import 'leaflet/dist/leaflet.css';
 
 // Default Leaflet marker icons (fix for webpack)
@@ -28,6 +29,14 @@ export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew,
   const totalDistKm = toKm(totalDist); // "0.00" format
   const durationStr = formatHMS(elapsedMs); // "MM:SS" or "HH:MM:SS" format
   const avgPaceStr = toAvgPace(totalDist / 1000, elapsedMs); // "M:SS" format
+
+  // Calculate workout benefits
+  const benefits = calculateWorkoutBenefits({
+    distanceKm: totalDist / 1000,
+    durationMin: elapsedMs / 60000,
+    loadKg: 10, // 기본 10kg 배낭 가정 (추후 사용자 입력으로 변경 가능)
+    bodyWeightKg: 70, // 기본 70kg 가정 (추후 사용자 프로필로 변경 가능)
+  });
 
   // Calculate map center and bounds
   const center: LatLng = path.length > 0
@@ -128,69 +137,96 @@ export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew,
           </div>
         </div>
 
-        {/* Body Impact Summary (루트 포인트 대체) */}
+        {/* Workout Benefits (정량화된 운동 효과) */}
         <div className="max-w-3xl mx-auto mb-8">
           <div className="bg-[#1C2321]/60 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-5">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <span className="text-xl">💪</span>
+                <span className="text-xl">📊</span>
                 <p className="text-sm font-mono text-[#A8B5AF] uppercase tracking-wider">
                   운동 효과
                 </p>
               </div>
-              <p className="text-xs font-mono text-[#6B7872]">신체 영향 분석</p>
+              <p className="text-xs font-mono text-[#6B7872]">정량화 분석</p>
             </div>
 
-            <div className="grid grid-cols-5 gap-2">
-              {/* 심혈관계 */}
-              <div className="text-center">
-                <div className="text-lg mb-1">❤️</div>
-                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '60%' }}></div>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              {/* 심폐지구력 */}
+              <div className="bg-[#0A0E0D]/40 border border-[#2D3A35]/30 rounded-sm p-3 text-center">
+                <div className="text-2xl mb-2">❤️</div>
+                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full transition-all duration-500"
+                    style={{ width: `${benefits.cardio.percentage}%` }}
+                  ></div>
                 </div>
-                <p className="text-xs font-mono text-[#6B7872] mt-1">심혈관</p>
+                <p className="text-xs font-mono text-[#A8B5AF] mb-1">심폐지구력</p>
+                <p className="text-sm font-mono font-bold text-[#00B46E]">{benefits.cardio.label}</p>
+                <p className="text-xs font-mono text-[#6B7872] mt-1">{benefits.cardio.score}점</p>
               </div>
 
-              {/* 근육계 */}
-              <div className="text-center">
-                <div className="text-lg mb-1">💪</div>
-                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '70%' }}></div>
+              {/* 근력 향상 */}
+              <div className="bg-[#0A0E0D]/40 border border-[#2D3A35]/30 rounded-sm p-3 text-center">
+                <div className="text-2xl mb-2">💪</div>
+                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full transition-all duration-500"
+                    style={{ width: `${benefits.strength.percentage}%` }}
+                  ></div>
                 </div>
-                <p className="text-xs font-mono text-[#6B7872] mt-1">근육</p>
+                <p className="text-xs font-mono text-[#A8B5AF] mb-1">근력 향상</p>
+                <p className="text-sm font-mono font-bold text-[#00B46E]">{benefits.strength.label}</p>
+                <p className="text-xs font-mono text-[#6B7872] mt-1">{benefits.strength.score}점</p>
               </div>
 
-              {/* 골격계 */}
-              <div className="text-center">
-                <div className="text-lg mb-1">🦴</div>
-                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '50%' }}></div>
+              {/* 골밀도 증가 */}
+              <div className="bg-[#0A0E0D]/40 border border-[#2D3A35]/30 rounded-sm p-3 text-center">
+                <div className="text-2xl mb-2">🦴</div>
+                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full transition-all duration-500"
+                    style={{ width: `${benefits.bone.percentage}%` }}
+                  ></div>
                 </div>
-                <p className="text-xs font-mono text-[#6B7872] mt-1">골격</p>
+                <p className="text-xs font-mono text-[#A8B5AF] mb-1">골밀도</p>
+                <p className="text-sm font-mono font-bold text-[#00B46E]">{benefits.bone.label}</p>
+                <p className="text-xs font-mono text-[#6B7872] mt-1">{benefits.bone.score}점</p>
               </div>
 
-              {/* 대사계 */}
-              <div className="text-center">
-                <div className="text-lg mb-1">🔥</div>
-                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '80%' }}></div>
+              {/* 칼로리 소모 */}
+              <div className="bg-[#0A0E0D]/40 border border-[#2D3A35]/30 rounded-sm p-3 text-center">
+                <div className="text-2xl mb-2">🔥</div>
+                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full transition-all duration-500"
+                    style={{ width: `${benefits.calories.percentage}%` }}
+                  ></div>
                 </div>
-                <p className="text-xs font-mono text-[#6B7872] mt-1">대사</p>
+                <p className="text-xs font-mono text-[#A8B5AF] mb-1">칼로리</p>
+                <p className="text-sm font-mono font-bold text-[#FFB800]">{benefits.calories.kcal}</p>
+                <p className="text-xs font-mono text-[#6B7872] mt-1">kcal</p>
               </div>
 
-              {/* 자세/코어 */}
-              <div className="text-center">
-                <div className="text-lg mb-1">🧘</div>
-                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '65%' }}></div>
+              {/* 정신 건강 */}
+              <div className="bg-[#0A0E0D]/40 border border-[#2D3A35]/30 rounded-sm p-3 text-center">
+                <div className="text-2xl mb-2">🧠</div>
+                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full transition-all duration-500"
+                    style={{ width: `${benefits.mentalHealth.percentage}%` }}
+                  ></div>
                 </div>
-                <p className="text-xs font-mono text-[#6B7872] mt-1">자세</p>
+                <p className="text-xs font-mono text-[#A8B5AF] mb-1">정신건강</p>
+                <p className="text-sm font-mono font-bold text-[#00B46E]">{benefits.mentalHealth.label}</p>
+                <p className="text-xs font-mono text-[#6B7872] mt-1">{benefits.mentalHealth.score}점</p>
               </div>
             </div>
 
-            <p className="text-xs font-mono text-[#6B7872] text-center mt-3">
-              ✅ 균형잡힌 전신 운동 완료
-            </p>
+            <div className="bg-[#0A0E0D]/30 border border-[#2D3A35]/20 rounded-sm p-3 text-center mt-4">
+              <p className="text-xs font-mono text-[#A8B5AF]">
+                ✅ 이번 운동으로 <span className="text-[#00B46E] font-bold">{benefits.calories.kcal} kcal</span> 소모하고 전신 건강을 개선했습니다
+              </p>
+            </div>
           </div>
         </div>
 
