@@ -404,6 +404,11 @@ export default function LiveWorkout() {
   const timeHMS = formatHMS(elapsedMs); // Already in ms, format to "HH:MM:SS" or "MM:SS"
   const avgPaceDisplay = toAvgPace(distance, elapsedMs); // distance in km, elapsedMs in ms, format to "M:SS"
 
+  // Handle go home from summary
+  const handleGoHome = () => {
+    navigate('/');
+  };
+
   // Summary Screen
   if (status === 'summary') {
     return (
@@ -412,6 +417,7 @@ export default function LiveWorkout() {
         totalDist={distance * 1000} // Convert km to meters
         elapsedMs={elapsedMs} // Already in ms
         onStartNew={handleStartNew}
+        onGoHome={handleGoHome}
       />
     );
   }

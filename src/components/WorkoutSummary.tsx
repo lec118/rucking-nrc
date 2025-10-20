@@ -24,7 +24,7 @@ const endIcon = new Icon({
   shadowSize: [41, 41]
 });
 
-export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew }: WorkoutSummaryProps) {
+export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew, onGoHome }: WorkoutSummaryProps) {
   const totalDistKm = toKm(totalDist); // "0.00" format
   const durationStr = formatHMS(elapsedMs); // "HH:MM:SS" format
   const avgSpeedKmh = toAvgSpeedKmh(totalDist / 1000, elapsedMs); // "5.3" or "--"
@@ -151,8 +151,18 @@ export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew 
           </div>
         </div>
 
-        {/* Action Button */}
-        <div className="max-w-md mx-auto">
+        {/* Action Buttons */}
+        <div className="max-w-md mx-auto space-y-3">
+          <button
+            onClick={onGoHome}
+            className="w-full bg-[#2D3A35] hover:bg-[#3A4A42] active:bg-[#1C2321] text-[#E5ECE8] font-mono font-bold text-sm uppercase tracking-widest py-4 rounded-sm shadow-lg transition-all duration-150 active:scale-[0.98] border border-[#00B46E]/30"
+          >
+            <span className="flex items-center justify-center gap-3">
+              <span>←</span>
+              HOME
+            </span>
+          </button>
+
           <button
             onClick={onStartNew}
             className="w-full bg-[#00B46E] hover:bg-[#008556] active:bg-[#00573B] text-[#0A0E0D] font-mono font-bold text-sm uppercase tracking-widest py-4 rounded-sm shadow-lg transition-all duration-150 active:scale-[0.98]"

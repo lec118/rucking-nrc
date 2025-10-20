@@ -8,6 +8,7 @@ export interface WorkoutSummaryProps {
   totalDist: number; // in meters
   elapsedMs: number; // in milliseconds
   onStartNew: () => void;
+  onGoHome: () => void;
 }
 
 export interface WorkoutData {
