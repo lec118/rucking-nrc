@@ -51,54 +51,49 @@ export default function WorkoutProvider({ children }) {
   };
 
   const addWorkout = async (workout) => {
-    const validation = validateWorkout(WorkoutSubmitSchema, workout);
+    // 항상 로컬 저장 우선 (운동 데이터 손실 방지)
+    const localWorkout = {
+      ...workout,
+      id: workout.id || Date.now(),
+      date: workout.date || new Date().toISOString()
+    };
 
-    if (!validation.success) {
-      const fieldErrors = toFieldErrors(validation.errors);
-      return Promise.reject({
-        formError: createClientValidationError(fieldErrors),
-        fieldErrors
-      });
-    }
+    // 즉시 로컬에 저장
+    setWorkouts(prev => [localWorkout, ...prev]);
 
-    const payload = validation.data;
-
+    // localStorage에도 백업
     try {
-      const newWorkout = await withNetworkRetry(
-        () => workoutAPI.createWorkout(payload, accessToken, csrfToken),
-        { attempts: 3, baseDelayMs: 800 }
-      );
-      setWorkouts(prev => [newWorkout, ...prev]);
-      logInfo('Workout created via API', { id: newWorkout.id });
-      return newWorkout;
-    } catch (error) {
-      const appError = handleApiError(error);
-      const isClientError =
-        appError.type === ErrorType.VALIDATION_ERROR ||
-        (appError.statusCode && appError.statusCode >= 400 && appError.statusCode < 500);
-
-      if (isClientError) {
-        const fieldErrors = parseValidationErrors(appError);
-        logError('Client validation failed while creating workout', fieldErrors);
-        throw {
-          formError: createClientValidationError(fieldErrors),
-          fieldErrors
-        };
-      }
-
-      if (appError.type === ErrorType.NETWORK_ERROR || appError.retryable) {
-        const localWorkout = { ...payload, id: Date.now() };
-        setWorkouts(prev => [localWorkout, ...prev]);
-        logInfo('Workout stored locally due to offline mode', { id: localWorkout.id });
-        return localWorkout;
-      }
-
-      logError('Unhandled error while creating workout', appError);
-      throw {
-        formError: createClientValidationError({ general: appError.message }),
-        fieldErrors: {}
-      };
+      const currentWorkouts = JSON.parse(localStorage.getItem('workouts') || '[]');
+      localStorage.setItem('workouts', JSON.stringify([localWorkout, ...currentWorkouts]));
+    } catch (e) {
+      logError('Failed to save to localStorage', e);
     }
+
+    logInfo('Workout saved locally', { id: localWorkout.id });
+
+    // 백그라운드에서 API 동기화 시도 (실패해도 괜찮음)
+    try {
+      const validation = validateWorkout(WorkoutSubmitSchema, workout);
+
+      if (validation.success) {
+        const payload = validation.data;
+        const newWorkout = await withNetworkRetry(
+          () => workoutAPI.createWorkout(payload, accessToken, csrfToken),
+          { attempts: 2, baseDelayMs: 500 }
+        );
+
+        // API 저장 성공시 ID 업데이트
+        setWorkouts(prev => prev.map(w =>
+          w.id === localWorkout.id ? { ...w, id: newWorkout.id } : w
+        ));
+        logInfo('Workout synced to API', { id: newWorkout.id });
+      }
+    } catch (error) {
+      // API 동기화 실패해도 로컬에는 이미 저장됨
+      logError('API sync failed, but workout is saved locally', error);
+    }
+
+    return localWorkout;
   };
 
   const deleteWorkout = async (id) => {

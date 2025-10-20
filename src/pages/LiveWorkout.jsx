@@ -292,18 +292,18 @@ export default function LiveWorkout() {
     setStatus('idle');
   };
 
-  // Handle Stop & Save (조건 없이 바로 종료)
+  // Handle Stop & Save (항상 저장됨)
   const handleStop = async () => {
     if (isSaving) return;
 
     stopTimer();
     stopGPS();
-    await releaseWakeLock(); // Release wake lock when stopping
+    await releaseWakeLock();
     setSaveError(null);
     setIsSaving(true);
 
     const distanceKm = parseFloat(distance.toFixed(2));
-    const durationMinutes = parseFloat((elapsedMs / (1000 * 60)).toFixed(1)); // Convert ms to minutes
+    const durationMinutes = parseFloat((elapsedMs / (1000 * 60)).toFixed(1));
     const derivedPace = distanceKm > 0
       ? parseFloat((durationMinutes / distanceKm).toFixed(1))
       : null;
@@ -318,16 +318,16 @@ export default function LiveWorkout() {
       route: routePath
     };
 
+    console.log('💾 Saving workout:', workoutPayload);
+
     try {
       await addWorkout(workoutPayload);
-      setStatus('summary'); // Show summary
-      setSaveError(null);
+      console.log('✅ Workout saved successfully');
     } catch (error) {
-      console.error('Error saving workout:', error);
-      // 에러가 있어도 summary로 이동 (validation 제거)
-      setStatus('summary');
+      console.error('⚠️ Error during save (but data is stored locally):', error);
     } finally {
       setIsSaving(false);
+      setStatus('summary');
     }
   };
 
