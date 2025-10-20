@@ -1,18 +1,33 @@
 // FILE: /src/pages/Home.jsx
 // 통합 대시보드 홈 화면
 
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useWorkout } from '../context/WorkoutContext';
 import { calculateWindowStats, calculateStreak, calculateWeeklyProgress, getRecentWorkouts, formatDate } from '../../lib/aggregateMetrics';
+import { getTodayDateString, isSessionOnDate } from '../../lib/geo/trackUtils';
+import TodayTrackModal from '../components/TodayTrackModal';
+import EffectDetailModal from '../components/EffectDetailModal';
 
 export default function Home() {
   const { workouts } = useWorkout();
+  const [isTodayModalOpen, setIsTodayModalOpen] = useState(false);
+  const [effectModalState, setEffectModalState] = useState({ isOpen: false, metric: null });
 
   // 통계 계산
   const stats = calculateWindowStats(workouts);
   const streak = calculateStreak(workouts);
   const weeklyProgress = calculateWeeklyProgress(workouts, 3); // 주 3회 목표
   const recentWorkouts = getRecentWorkouts(workouts, 3); // 메인 화면에 3개만 표시
+
+  // 오늘 운동 여부 확인
+  const today = getTodayDateString();
+  const hasTodayWorkout = workouts.some((w) => isSessionOnDate(w.date, today));
+
+  // 운동 효과 타일 클릭 핸들러
+  const handleEffectClick = (metric) => {
+    setEffectModalState({ isOpen: true, metric });
+  };
 
   return (
     <div className="min-h-screen bg-[#0A0E0D] text-[#E5ECE8]">
@@ -90,9 +105,23 @@ export default function Home() {
         {/* Recent Activity */}
         <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-mono font-bold text-[#E5ECE8] uppercase tracking-wider">
-              최근 활동
-            </h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-mono font-bold text-[#E5ECE8] uppercase tracking-wider">
+                최근 활동
+              </h2>
+              {/* 오늘 버튼 */}
+              <button
+                onClick={() => setIsTodayModalOpen(true)}
+                className={`font-mono font-bold text-xs px-3 py-1 rounded-sm transition-colors ${
+                  hasTodayWorkout
+                    ? 'bg-[#00B46E] text-[#0A0E0D] hover:bg-[#008556]'
+                    : 'bg-[#2D3A35] text-[#6B7872] hover:bg-[#3D4A45]'
+                }`}
+                aria-label="오늘의 운동 보기"
+              >
+                오늘
+              </button>
+            </div>
             <Link
               to="/history"
               className="bg-[#2D3A35] hover:bg-[#3D4A45] text-[#E5ECE8] font-mono font-bold text-xs uppercase tracking-wider px-4 py-2 rounded-sm transition-colors"
@@ -150,39 +179,63 @@ export default function Home() {
           )}
         </div>
 
-        {/* Rucking Benefits */}
+        {/* 운동 효과 (이전: 러킹의 장점) */}
         <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-6">
           <h2 className="text-lg font-mono font-bold text-[#E5ECE8] uppercase tracking-wider mb-4">
-            러킹의 장점
+            운동 효과
           </h2>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors">
+            <button
+              onClick={() => handleEffectClick('cv')}
+              className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors cursor-pointer"
+              aria-label="심폐지구력 상세 보기"
+            >
               <div className="text-3xl mb-2">❤️</div>
               <p className="text-xs font-mono text-[#A8B5AF] mb-1">심폐지구력</p>
               <p className="text-xs font-mono text-[#6B7872]">유산소 강화</p>
-            </div>
+            </button>
 
-            <div className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors">
+            <button
+              onClick={() => handleEffectClick('musc')}
+              className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors cursor-pointer"
+              aria-label="근지구력 상세 보기"
+            >
               <div className="text-3xl mb-2">💪</div>
-              <p className="text-xs font-mono text-[#A8B5AF] mb-1">근력 향상</p>
+              <p className="text-xs font-mono text-[#A8B5AF] mb-1">근지구력</p>
               <p className="text-xs font-mono text-[#6B7872]">전신 근육</p>
-            </div>
+            </button>
 
-            <div className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors">
+            <button
+              onClick={() => handleEffectClick('bone')}
+              className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors cursor-pointer"
+              aria-label="골자극 상세 보기"
+            >
               <div className="text-3xl mb-2">🦴</div>
-              <p className="text-xs font-mono text-[#A8B5AF] mb-1">골밀도 증가</p>
+              <p className="text-xs font-mono text-[#A8B5AF] mb-1">골자극</p>
               <p className="text-xs font-mono text-[#6B7872]">뼈 건강</p>
-            </div>
+            </button>
 
-            <div className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors">
+            <button
+              onClick={() => handleEffectClick('meta')}
+              className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors cursor-pointer"
+              aria-label="대사 활성 상세 보기"
+            >
               <div className="text-3xl mb-2">🔥</div>
-              <p className="text-xs font-mono text-[#A8B5AF] mb-1">칼로리 소모</p>
-              <p className="text-xs font-mono text-[#6B7872]">체중 관리</p>
-            </div>
+              <p className="text-xs font-mono text-[#A8B5AF] mb-1">대사 활성</p>
+              <p className="text-xs font-mono text-[#6B7872]">칼로리 소모</p>
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <TodayTrackModal isOpen={isTodayModalOpen} onClose={() => setIsTodayModalOpen(false)} />
+      <EffectDetailModal
+        isOpen={effectModalState.isOpen}
+        onClose={() => setEffectModalState({ isOpen: false, metric: null })}
+        metric={effectModalState.metric}
+      />
     </div>
   );
 }
