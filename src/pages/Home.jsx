@@ -23,9 +23,6 @@ export default function Home() {
             <h1 className="text-2xl font-mono font-bold text-[#00B46E]">
               Good Ruck
             </h1>
-            <p className="text-xs font-mono text-[#6B7872] uppercase tracking-wider mt-1">
-              정량화 러킹 시스템
-            </p>
           </div>
           <Link
             to="/live-workout"
@@ -153,63 +150,42 @@ export default function Home() {
           )}
         </div>
 
-        {/* Body Impact Summary */}
+        {/* Rucking Benefits */}
         <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-6">
           <h2 className="text-lg font-mono font-bold text-[#E5ECE8] uppercase tracking-wider mb-4">
-            이번 주 운동 효과
+            러킹의 장점
           </h2>
 
-          <div className="grid grid-cols-5 gap-4 mb-4">
-            <div className="text-center">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors">
               <div className="text-3xl mb-2">❤️</div>
-              <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
-                <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '60%' }}></div>
-              </div>
-              <p className="text-xs font-mono text-[#6B7872]">심혈관</p>
-              <p className="text-lg font-mono font-bold text-[#00B46E] mt-1">3</p>
+              <p className="text-xs font-mono text-[#A8B5AF] mb-1">심폐지구력</p>
+              <p className="text-xs font-mono text-[#6B7872]">유산소 강화</p>
             </div>
 
-            <div className="text-center">
+            <div className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors">
               <div className="text-3xl mb-2">💪</div>
-              <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
-                <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '70%' }}></div>
-              </div>
-              <p className="text-xs font-mono text-[#6B7872]">근육</p>
-              <p className="text-lg font-mono font-bold text-[#00B46E] mt-1">4</p>
+              <p className="text-xs font-mono text-[#A8B5AF] mb-1">근력 향상</p>
+              <p className="text-xs font-mono text-[#6B7872]">전신 근육</p>
             </div>
 
-            <div className="text-center">
+            <div className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors">
               <div className="text-3xl mb-2">🦴</div>
-              <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
-                <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '50%' }}></div>
-              </div>
-              <p className="text-xs font-mono text-[#6B7872]">골격</p>
-              <p className="text-lg font-mono font-bold text-[#00B46E] mt-1">2</p>
+              <p className="text-xs font-mono text-[#A8B5AF] mb-1">골밀도 증가</p>
+              <p className="text-xs font-mono text-[#6B7872]">뼈 건강</p>
             </div>
 
-            <div className="text-center">
+            <div className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors">
               <div className="text-3xl mb-2">🔥</div>
-              <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
-                <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '80%' }}></div>
-              </div>
-              <p className="text-xs font-mono text-[#6B7872]">대사</p>
-              <p className="text-lg font-mono font-bold text-[#00B46E] mt-1">4</p>
+              <p className="text-xs font-mono text-[#A8B5AF] mb-1">칼로리 소모</p>
+              <p className="text-xs font-mono text-[#6B7872]">체중 관리</p>
             </div>
 
-            <div className="text-center">
-              <div className="text-3xl mb-2">🧘</div>
-              <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
-                <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '65%' }}></div>
-              </div>
-              <p className="text-xs font-mono text-[#6B7872]">자세</p>
-              <p className="text-lg font-mono font-bold text-[#00B46E] mt-1">3</p>
+            <div className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors">
+              <div className="text-3xl mb-2">🧠</div>
+              <p className="text-xs font-mono text-[#A8B5AF] mb-1">정신 건강</p>
+              <p className="text-xs font-mono text-[#6B7872]">스트레스 해소</p>
             </div>
-          </div>
-
-          <div className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center">
-            <p className="text-sm font-mono text-[#A8B5AF]">
-              ✅ 균형잡힌 전신 운동을 유지하고 있습니다
-            </p>
           </div>
         </div>
       </div>
