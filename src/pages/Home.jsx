@@ -21,7 +21,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-mono font-bold text-[#00B46E]">
-              RUCKING TRACKER
+              Good Ruck
             </h1>
             <p className="text-xs font-mono text-[#6B7872] uppercase tracking-wider mt-1">
               정량화 러킹 시스템
