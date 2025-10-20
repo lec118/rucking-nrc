@@ -12,7 +12,7 @@ export default function Home() {
   const stats = calculateWindowStats(workouts);
   const streak = calculateStreak(workouts);
   const weeklyProgress = calculateWeeklyProgress(workouts, 3); // 주 3회 목표
-  const recentWorkouts = getRecentWorkouts(workouts, 5);
+  const recentWorkouts = getRecentWorkouts(workouts, 3); // 메인 화면에 3개만 표시
 
   return (
     <div className="min-h-screen bg-[#0A0E0D] text-[#E5ECE8]">
@@ -96,9 +96,12 @@ export default function Home() {
             <h2 className="text-lg font-mono font-bold text-[#E5ECE8] uppercase tracking-wider">
               최근 활동
             </h2>
-            <p className="text-xs font-mono text-[#6B7872]">
-              {recentWorkouts.length}개 세션
-            </p>
+            <Link
+              to="/history"
+              className="bg-[#2D3A35] hover:bg-[#3D4A45] text-[#E5ECE8] font-mono font-bold text-xs uppercase tracking-wider px-4 py-2 rounded-sm transition-colors"
+            >
+              MORE
+            </Link>
           </div>
 
           {recentWorkouts.length === 0 ? (
