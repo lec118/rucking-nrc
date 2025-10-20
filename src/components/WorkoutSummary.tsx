@@ -2,7 +2,7 @@
 import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
 import { Icon } from 'leaflet';
 import type { WorkoutSummaryProps, LatLng } from '../types/workout';
-import { formatHMS, toKm, toAvgSpeedKmh } from '../utils/format';
+import { formatHMS, toKm, toAvgPace } from '../utils/format';
 import 'leaflet/dist/leaflet.css';
 
 // Default Leaflet marker icons (fix for webpack)
@@ -26,8 +26,8 @@ const endIcon = new Icon({
 
 export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew, onGoHome }: WorkoutSummaryProps) {
   const totalDistKm = toKm(totalDist); // "0.00" format
-  const durationStr = formatHMS(elapsedMs); // "HH:MM:SS" format
-  const avgSpeedKmh = toAvgSpeedKmh(totalDist / 1000, elapsedMs); // "5.3" or "--"
+  const durationStr = formatHMS(elapsedMs); // "MM:SS" or "HH:MM:SS" format
+  const avgPaceStr = toAvgPace(totalDist / 1000, elapsedMs); // "M:SS" format
 
   // Calculate map center and bounds
   const center: LatLng = path.length > 0
@@ -92,62 +92,105 @@ export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew,
 
       {/* Summary Cards */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-6">
+        {/* Main Stats - 3 Column Grid */}
+        <div className="grid grid-cols-3 gap-3 max-w-3xl mx-auto mb-6">
           {/* Distance Card */}
-          <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-6">
+          <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-4 text-center">
             <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-2">
-              TOTAL DISTANCE
+              거리
             </p>
-            <p className="text-3xl font-mono font-bold text-[#00B46E] tabular-nums" aria-label="distance-kilometers">
+            <p className="text-2xl font-mono font-bold text-[#00B46E] tabular-nums break-all" aria-label="distance-kilometers">
               {totalDistKm}
             </p>
-            <p className="text-xs font-mono text-[#6B7872] mt-1">kilometers</p>
+            <p className="text-xs font-mono text-[#6B7872] mt-1">km</p>
           </div>
 
           {/* Time Card */}
-          <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-6">
+          <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-4 text-center">
             <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-2">
-              TOTAL TIME
+              시간
             </p>
-            <p className="text-3xl font-mono font-bold text-[#E5ECE8] tabular-nums" aria-label="elapsed-time-hh-mm-ss">
+            <p className="text-2xl font-mono font-bold text-[#E5ECE8] tabular-nums break-all" aria-label="elapsed-time">
               {durationStr}
             </p>
-            <p className="text-xs font-mono text-[#6B7872] mt-1">duration</p>
+            <p className="text-xs font-mono text-[#6B7872] mt-1">경과</p>
           </div>
 
-          {/* Speed Card */}
-          <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-6">
+          {/* Pace Card (평균 속도 대체) */}
+          <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-4 text-center">
             <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-2">
-              AVG SPEED
+              평균 페이스
             </p>
-            <p className="text-3xl font-mono font-bold text-[#E5ECE8] tabular-nums" aria-label="average-speed-kmh">
-              {avgSpeedKmh}
+            <p className="text-2xl font-mono font-bold text-[#E5ECE8] tabular-nums break-all" aria-label="average-pace">
+              {avgPaceStr}
             </p>
-            <p className="text-xs font-mono text-[#6B7872] mt-1">km/h</p>
+            <p className="text-xs font-mono text-[#6B7872] mt-1">/km</p>
           </div>
         </div>
 
-        {/* Additional Stats */}
-        <div className="grid grid-cols-2 gap-4 max-w-xl mx-auto mb-8">
-          <div className="bg-[#1C2321]/60 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-4">
-            <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-1">
-              ROUTE POINTS
-            </p>
-            <p className="text-xl font-mono font-bold text-[#E5ECE8] tabular-nums">
-              {path.length}
-            </p>
-          </div>
+        {/* Body Impact Summary (루트 포인트 대체) */}
+        <div className="max-w-3xl mx-auto mb-8">
+          <div className="bg-[#1C2321]/60 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">💪</span>
+                <p className="text-sm font-mono text-[#A8B5AF] uppercase tracking-wider">
+                  운동 효과
+                </p>
+              </div>
+              <p className="text-xs font-mono text-[#6B7872]">신체 영향 분석</p>
+            </div>
 
-          <div className="bg-[#1C2321]/60 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-4">
-            <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-1">
-              AVG PACE
+            <div className="grid grid-cols-5 gap-2">
+              {/* 심혈관계 */}
+              <div className="text-center">
+                <div className="text-lg mb-1">❤️</div>
+                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '60%' }}></div>
+                </div>
+                <p className="text-xs font-mono text-[#6B7872] mt-1">심혈관</p>
+              </div>
+
+              {/* 근육계 */}
+              <div className="text-center">
+                <div className="text-lg mb-1">💪</div>
+                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '70%' }}></div>
+                </div>
+                <p className="text-xs font-mono text-[#6B7872] mt-1">근육</p>
+              </div>
+
+              {/* 골격계 */}
+              <div className="text-center">
+                <div className="text-lg mb-1">🦴</div>
+                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '50%' }}></div>
+                </div>
+                <p className="text-xs font-mono text-[#6B7872] mt-1">골격</p>
+              </div>
+
+              {/* 대사계 */}
+              <div className="text-center">
+                <div className="text-lg mb-1">🔥</div>
+                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '80%' }}></div>
+                </div>
+                <p className="text-xs font-mono text-[#6B7872] mt-1">대사</p>
+              </div>
+
+              {/* 자세/코어 */}
+              <div className="text-center">
+                <div className="text-lg mb-1">🧘</div>
+                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '65%' }}></div>
+                </div>
+                <p className="text-xs font-mono text-[#6B7872] mt-1">자세</p>
+              </div>
+            </div>
+
+            <p className="text-xs font-mono text-[#6B7872] text-center mt-3">
+              ✅ 균형잡힌 전신 운동 완료
             </p>
-            <p className="text-xl font-mono font-bold text-[#E5ECE8] tabular-nums">
-              {totalDist > 0 && elapsedMs > 0
-                ? ((elapsedMs / 1000 / 60) / (totalDist / 1000)).toFixed(1)
-                : '--'}
-            </p>
-            <p className="text-xs font-mono text-[#6B7872]">min/km</p>
           </div>
         </div>
 
