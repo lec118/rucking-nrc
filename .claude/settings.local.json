@@ -33,7 +33,9 @@
       "Bash(if not exist ios-wrapper mkdir ios-wrapper)",
       "Bash(if not exist iosApp mkdir iosApp)",
       "Bash(if not exist .githubworkflows mkdir .githubworkflows)",
-      "Bash(if not exist .husky mkdir .husky)"
+      "Bash(if not exist .husky mkdir .husky)",
+      "Bash(if not exist _deprecated mkdir _deprecated)",
+      "Bash(git mv:*)"
     ],
     "deny": [],
     "ask": []
