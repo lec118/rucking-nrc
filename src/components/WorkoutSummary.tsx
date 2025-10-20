@@ -150,10 +150,10 @@ export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew,
               <p className="text-xs font-mono text-[#6B7872]">정량화 분석</p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {/* 심폐지구력 */}
-              <div className="bg-[#0A0E0D]/40 border border-[#2D3A35]/30 rounded-sm p-3 text-center">
-                <div className="text-2xl mb-2">❤️</div>
+              <div className="bg-[#0A0E0D]/40 border border-[#2D3A35]/30 rounded-sm p-4 text-center">
+                <div className="text-3xl mb-2">❤️</div>
                 <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
                   <div
                     className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full transition-all duration-500"
@@ -166,8 +166,8 @@ export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew,
               </div>
 
               {/* 근력 향상 */}
-              <div className="bg-[#0A0E0D]/40 border border-[#2D3A35]/30 rounded-sm p-3 text-center">
-                <div className="text-2xl mb-2">💪</div>
+              <div className="bg-[#0A0E0D]/40 border border-[#2D3A35]/30 rounded-sm p-4 text-center">
+                <div className="text-3xl mb-2">💪</div>
                 <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
                   <div
                     className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full transition-all duration-500"
@@ -180,8 +180,8 @@ export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew,
               </div>
 
               {/* 골밀도 증가 */}
-              <div className="bg-[#0A0E0D]/40 border border-[#2D3A35]/30 rounded-sm p-3 text-center">
-                <div className="text-2xl mb-2">🦴</div>
+              <div className="bg-[#0A0E0D]/40 border border-[#2D3A35]/30 rounded-sm p-4 text-center">
+                <div className="text-3xl mb-2">🦴</div>
                 <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
                   <div
                     className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full transition-all duration-500"
@@ -194,8 +194,8 @@ export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew,
               </div>
 
               {/* 칼로리 소모 */}
-              <div className="bg-[#0A0E0D]/40 border border-[#2D3A35]/30 rounded-sm p-3 text-center">
-                <div className="text-2xl mb-2">🔥</div>
+              <div className="bg-[#0A0E0D]/40 border border-[#2D3A35]/30 rounded-sm p-4 text-center">
+                <div className="text-3xl mb-2">🔥</div>
                 <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
                   <div
                     className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full transition-all duration-500"
@@ -205,20 +205,6 @@ export default function WorkoutSummary({ path, totalDist, elapsedMs, onStartNew,
                 <p className="text-xs font-mono text-[#A8B5AF] mb-1">칼로리</p>
                 <p className="text-sm font-mono font-bold text-[#FFB800]">{benefits.calories.kcal}</p>
                 <p className="text-xs font-mono text-[#6B7872] mt-1">kcal</p>
-              </div>
-
-              {/* 정신 건강 */}
-              <div className="bg-[#0A0E0D]/40 border border-[#2D3A35]/30 rounded-sm p-3 text-center">
-                <div className="text-2xl mb-2">🧠</div>
-                <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full transition-all duration-500"
-                    style={{ width: `${benefits.mentalHealth.percentage}%` }}
-                  ></div>
-                </div>
-                <p className="text-xs font-mono text-[#A8B5AF] mb-1">정신건강</p>
-                <p className="text-sm font-mono font-bold text-[#00B46E]">{benefits.mentalHealth.label}</p>
-                <p className="text-xs font-mono text-[#6B7872] mt-1">{benefits.mentalHealth.score}점</p>
               </div>
             </div>
 

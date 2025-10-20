@@ -156,7 +156,7 @@ export default function Home() {
             러킹의 장점
           </h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors">
               <div className="text-3xl mb-2">❤️</div>
               <p className="text-xs font-mono text-[#A8B5AF] mb-1">심폐지구력</p>
@@ -179,12 +179,6 @@ export default function Home() {
               <div className="text-3xl mb-2">🔥</div>
               <p className="text-xs font-mono text-[#A8B5AF] mb-1">칼로리 소모</p>
               <p className="text-xs font-mono text-[#6B7872]">체중 관리</p>
-            </div>
-
-            <div className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors">
-              <div className="text-3xl mb-2">🧠</div>
-              <p className="text-xs font-mono text-[#A8B5AF] mb-1">정신 건강</p>
-              <p className="text-xs font-mono text-[#6B7872]">스트레스 해소</p>
             </div>
           </div>
         </div>
