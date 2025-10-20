@@ -1,72 +1,213 @@
 // FILE: /src/pages/Home.jsx
-// 임시 홈 화면 (추후 5개 탭으로 확장 예정)
+// 통합 대시보드 홈 화면
 
 import { Link } from 'react-router-dom';
+import { useWorkout } from '../context/WorkoutContext';
+import { calculateWindowStats, calculateStreak, calculateWeeklyProgress, getRecentWorkouts, formatDate } from '../../lib/aggregateMetrics';
 
 export default function Home() {
+  const { workouts } = useWorkout();
+
+  // 통계 계산
+  const stats = calculateWindowStats(workouts);
+  const streak = calculateStreak(workouts);
+  const weeklyProgress = calculateWeeklyProgress(workouts, 3); // 주 3회 목표
+  const recentWorkouts = getRecentWorkouts(workouts, 5);
+
   return (
-    <div className="min-h-screen bg-[#0A0E0D] text-[#E5ECE8] flex flex-col items-center justify-center p-6">
-      <div className="max-w-2xl w-full space-y-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-mono font-bold text-[#00B46E] mb-4">
-            RUCKING TRACKER
-          </h1>
-          <p className="text-[#A8B5AF] font-mono text-sm uppercase tracking-wider">
-            정량화 러킹 시스템
-          </p>
+    <div className="min-h-screen bg-[#0A0E0D] text-[#E5ECE8]">
+      {/* Header */}
+      <div className="bg-gradient-to-b from-black/80 to-transparent p-4 border-b border-[#2D3A35]/50">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-mono font-bold text-[#00B46E]">
+              RUCKING TRACKER
+            </h1>
+            <p className="text-xs font-mono text-[#6B7872] uppercase tracking-wider mt-1">
+              정량화 러킹 시스템
+            </p>
+          </div>
+          <Link
+            to="/live-workout"
+            className="bg-[#00B46E] hover:bg-[#008556] active:bg-[#00573B] text-[#0A0E0D] font-mono font-bold text-sm uppercase tracking-wider px-6 py-3 rounded-sm shadow-lg transition-all duration-150 active:scale-[0.98]"
+            style={{ boxShadow: '0 4px 16px rgba(0, 180, 110, 0.25)' }}
+          >
+            START
+          </Link>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto p-6 space-y-6">
+        {/* Overview Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Total Workouts */}
+          <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-4">
+            <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-2">
+              총 운동
+            </p>
+            <p className="text-3xl font-mono font-bold text-[#00B46E]">
+              {stats.recent28Days.totalWorkouts}
+            </p>
+            <p className="text-xs font-mono text-[#6B7872] mt-1">이번 달</p>
+          </div>
+
+          {/* Total Distance */}
+          <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-4">
+            <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-2">
+              총 거리
+            </p>
+            <p className="text-3xl font-mono font-bold text-[#E5ECE8]">
+              {stats.recent28Days.totalDistance}
+            </p>
+            <p className="text-xs font-mono text-[#6B7872] mt-1">km</p>
+          </div>
+
+          {/* Streak */}
+          <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-4">
+            <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-2">
+              연속 기록
+            </p>
+            <p className="text-3xl font-mono font-bold text-[#FFB800]">
+              {streak}
+            </p>
+            <p className="text-xs font-mono text-[#6B7872] mt-1">일</p>
+          </div>
+
+          {/* Weekly Goal */}
+          <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-4">
+            <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider mb-2">
+              주간 목표
+            </p>
+            <p className="text-3xl font-mono font-bold text-[#E5ECE8]">
+              {weeklyProgress.completed}/{weeklyProgress.target}
+            </p>
+            <div className="h-1.5 bg-[#2D3A35] rounded-full overflow-hidden mt-2">
+              <div
+                className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full transition-all duration-500"
+                style={{ width: `${weeklyProgress.percentage}%` }}
+              ></div>
+            </div>
+          </div>
         </div>
 
-        {/* Main CTA */}
-        <Link
-          to="/live-workout"
-          className="block w-full bg-[#00B46E] hover:bg-[#008556] active:bg-[#00573B] text-[#0A0E0D] font-mono font-bold text-lg uppercase tracking-widest py-6 rounded-sm shadow-lg transition-all duration-150 active:scale-[0.98] text-center"
-          style={{ boxShadow: '0 4px 16px rgba(0, 180, 110, 0.25)' }}
-        >
-          <span className="flex items-center justify-center gap-4">
-            <span className="w-3 h-3 bg-[#0A0E0D] rounded-full"></span>
-            START WORKOUT
-          </span>
-        </Link>
-
-        {/* Info Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12">
-          <div className="bg-[#1C2321]/70 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-6 text-center">
-            <div className="text-3xl mb-2">📊</div>
-            <h3 className="text-sm font-mono text-[#A8B5AF] uppercase tracking-wider mb-2">
-              RuckScore 0-100
-            </h3>
-            <p className="text-xs text-[#6B7872]">
-              정량화된 러킹 효과 측정
+        {/* Recent Activity */}
+        <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-mono font-bold text-[#E5ECE8] uppercase tracking-wider">
+              최근 활동
+            </h2>
+            <p className="text-xs font-mono text-[#6B7872]">
+              {recentWorkouts.length}개 세션
             </p>
           </div>
 
-          <div className="bg-[#1C2321]/70 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-6 text-center">
-            <div className="text-3xl mb-2">🗺️</div>
-            <h3 className="text-sm font-mono text-[#A8B5AF] uppercase tracking-wider mb-2">
-              GPS 추적
-            </h3>
-            <p className="text-xs text-[#6B7872]">
-              실시간 경로 및 거리 기록
-            </p>
-          </div>
-
-          <div className="bg-[#1C2321]/70 backdrop-blur-sm border border-[#2D3A35]/40 rounded-sm p-6 text-center">
-            <div className="text-3xl mb-2">💪</div>
-            <h3 className="text-sm font-mono text-[#A8B5AF] uppercase tracking-wider mb-2">
-              Body Impact
-            </h3>
-            <p className="text-xs text-[#6B7872]">
-              5개 신체 영역 분석
-            </p>
-          </div>
+          {recentWorkouts.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-[#6B7872] font-mono text-sm mb-4">
+                아직 운동 기록이 없습니다
+              </p>
+              <Link
+                to="/live-workout"
+                className="inline-block bg-[#00B46E] hover:bg-[#008556] text-[#0A0E0D] font-mono font-bold text-sm uppercase tracking-wider px-6 py-3 rounded-sm"
+              >
+                첫 운동 시작하기
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recentWorkouts.map((workout) => (
+                <div
+                  key={workout.id}
+                  className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 hover:border-[#00B46E]/40 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <p className="font-mono font-bold text-[#E5ECE8]">
+                          {workout.title}
+                        </p>
+                        {workout.ruckScore && (
+                          <span className="bg-[#00B46E]/20 text-[#00B46E] text-xs font-mono font-bold px-2 py-1 rounded">
+                            {workout.ruckScore}점
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-4 text-sm font-mono text-[#6B7872]">
+                        <span>📍 {workout.distance.toFixed(1)} km</span>
+                        <span>⏱️ {workout.duration} min</span>
+                        {workout.kcal && <span>🔥 {workout.kcal} kcal</span>}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-mono text-[#A8B5AF]">
+                        {formatDate(workout.date)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Notice */}
-        <div className="bg-[#2D3A35]/30 border border-[#00B46E]/30 rounded-sm p-4 mt-8">
-          <p className="text-xs font-mono text-[#A8B5AF] text-center">
-            🚧 새로운 대시보드 개편 중입니다. 곧 History, Effects, Impact, Streaks 탭이 추가됩니다.
-          </p>
+        {/* Body Impact Summary */}
+        <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-6">
+          <h2 className="text-lg font-mono font-bold text-[#E5ECE8] uppercase tracking-wider mb-4">
+            이번 주 운동 효과
+          </h2>
+
+          <div className="grid grid-cols-5 gap-4 mb-4">
+            <div className="text-center">
+              <div className="text-3xl mb-2">❤️</div>
+              <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
+                <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '60%' }}></div>
+              </div>
+              <p className="text-xs font-mono text-[#6B7872]">심혈관</p>
+              <p className="text-lg font-mono font-bold text-[#00B46E] mt-1">3</p>
+            </div>
+
+            <div className="text-center">
+              <div className="text-3xl mb-2">💪</div>
+              <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
+                <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '70%' }}></div>
+              </div>
+              <p className="text-xs font-mono text-[#6B7872]">근육</p>
+              <p className="text-lg font-mono font-bold text-[#00B46E] mt-1">4</p>
+            </div>
+
+            <div className="text-center">
+              <div className="text-3xl mb-2">🦴</div>
+              <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
+                <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '50%' }}></div>
+              </div>
+              <p className="text-xs font-mono text-[#6B7872]">골격</p>
+              <p className="text-lg font-mono font-bold text-[#00B46E] mt-1">2</p>
+            </div>
+
+            <div className="text-center">
+              <div className="text-3xl mb-2">🔥</div>
+              <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
+                <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '80%' }}></div>
+              </div>
+              <p className="text-xs font-mono text-[#6B7872]">대사</p>
+              <p className="text-lg font-mono font-bold text-[#00B46E] mt-1">4</p>
+            </div>
+
+            <div className="text-center">
+              <div className="text-3xl mb-2">🧘</div>
+              <div className="h-2 bg-[#2D3A35] rounded-full overflow-hidden mb-2">
+                <div className="h-full bg-gradient-to-r from-[#00B46E] to-[#00FF88] rounded-full" style={{ width: '65%' }}></div>
+              </div>
+              <p className="text-xs font-mono text-[#6B7872]">자세</p>
+              <p className="text-lg font-mono font-bold text-[#00B46E] mt-1">3</p>
+            </div>
+          </div>
+
+          <div className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center">
+            <p className="text-sm font-mono text-[#A8B5AF]">
+              ✅ 균형잡힌 전신 운동을 유지하고 있습니다
+            </p>
+          </div>
         </div>
       </div>
     </div>
