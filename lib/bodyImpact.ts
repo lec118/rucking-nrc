@@ -14,6 +14,15 @@ export interface BodyImpact {
   overloadWarning: boolean; // ACWR > 1.5
   heavyLoadWarning: boolean; // Load > 0.2*BW && Dist > 8km
   notes: string[]; // 한국어 팁
+
+  // 실제 측정값 (UI 표시용)
+  rawValues: {
+    trimp: number;
+    mechLoadKgKm: number;
+    bms: number;
+    kcal: number;
+    ruckScore: number;
+  };
 }
 
 export interface BodyImpactInput {
@@ -158,6 +167,13 @@ export function calculateBodyImpact(input: BodyImpactInput): BodyImpact {
     overloadWarning,
     heavyLoadWarning,
     notes,
+    rawValues: {
+      trimp: Math.round(trimp),
+      mechLoadKgKm: Math.round(mechLoadKgKm * 10) / 10,
+      bms: Math.round(bms * 10) / 10,
+      kcal: Math.round(kcal),
+      ruckScore: Math.round(ruckScore),
+    },
   };
 }
 

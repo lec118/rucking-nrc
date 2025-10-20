@@ -124,28 +124,28 @@ export function getMetricDetail(
   switch (metric) {
     case 'cv':
       level = bodyImpact.cardiovascular;
-      score = 0; // TRIMP 실제 값은 bodyImpact에 없으므로 0 (level만 사용)
+      score = bodyImpact.rawValues.trimp;
       unit = 'TRIMP';
       break;
     case 'musc':
       level = bodyImpact.muscular;
-      score = 0; // MechLoad 실제 값 없음
-      unit = 'MechLoad';
+      score = bodyImpact.rawValues.mechLoadKgKm;
+      unit = 'kg·km';
       break;
     case 'bone':
       level = bodyImpact.bone;
-      score = 0; // BMS 실제 값 없음
+      score = bodyImpact.rawValues.bms;
       unit = 'BMS';
       break;
     case 'meta':
       level = bodyImpact.metabolic;
-      score = 0; // kcal은 별도 필드에 있을 수 있음 (workoutBenefits 참조)
+      score = bodyImpact.rawValues.kcal;
       unit = 'kcal';
       break;
     case 'posture':
       level = bodyImpact.posture;
-      score = 0;
-      unit = 'score';
+      score = bodyImpact.rawValues.ruckScore;
+      unit = 'RuckScore';
       break;
     default:
       level = 0;

@@ -1,47 +1,55 @@
 /**
  * 운동 효과 상세 정보 모달
- * - 각 지표(심폐지구력, 근력, 골밀도, 대사, 자세)의 상세 정보 표시
+ * - 각 지표(심폐지구력, 근력, 골밀도, 대사)의 상세 정보 표시
  * - Impact Level, 설명, 팁 제공
  * - 히스토리가 없어도 일반적인 정보 표시
  */
 
+import { useMemo } from 'react';
 import Modal from './Modal';
-import { getMetricDetail, getLevelLabel, getLevelColor } from '../../lib/bodyImpactHelpers';
+import { getMetricDetail, getLevelLabel, getLevelColor, MetricType } from '../../lib/bodyImpactHelpers';
 import { calculateBodyImpact } from '../../lib/bodyImpact';
 import { useWorkout } from '../context/WorkoutContext';
+import { useUserProfile } from '../context/UserProfileContext';
+import { getAcwrInputs } from '../../lib/aggregateMetrics';
+import { adaptWorkoutToBodyImpact } from '../../lib/adapters/bodyImpactAdapter';
 
-export default function EffectDetailModal({ isOpen, onClose, metric }) {
+interface EffectDetailModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  metric: MetricType | null;
+}
+
+export default function EffectDetailModal({ isOpen, onClose, metric }: EffectDetailModalProps) {
   const { workouts } = useWorkout();
+  const { profile } = useUserProfile();
+
+  // bodyImpact 계산 (메모이제이션)
+  const bodyImpact = useMemo(() => {
+    if (!metric || workouts.length === 0) return null;
+
+    try {
+      const lastWorkout = workouts[workouts.length - 1];
+      const { recent7RuckScoreSum, recent28RuckScoreSum } = getAcwrInputs(workouts);
+
+      // 어댑터를 사용하여 입력 데이터 변환
+      const input = adaptWorkoutToBodyImpact(
+        lastWorkout,
+        profile,
+        recent7RuckScoreSum,
+        recent28RuckScoreSum
+      );
+
+      return calculateBodyImpact(input);
+    } catch (e) {
+      console.error('bodyImpact 계산 실패:', e);
+      return null;
+    }
+  }, [metric, workouts, profile]);
 
   // metric이 없으면 early return
   if (!metric) {
     return null;
-  }
-
-  // 마지막 세션의 bodyImpact 계산 (있는 경우)
-  let bodyImpact = null;
-  if (workouts.length > 0) {
-    const lastWorkout = workouts[workouts.length - 1];
-
-    // bodyImpact 계산을 위한 입력 데이터 구성
-    const input = {
-      distKm: lastWorkout.distance || 0,
-      durationMin: (lastWorkout.duration || 0),
-      loadKg: lastWorkout.loadKg || 10,
-      bodyWeightKg: 70,
-      avgHR: lastWorkout.avgHR || 0,
-      maxHR: 180,
-      age: 30,
-      elevation: lastWorkout.elevation || 0,
-      recent7RuckScoreSum: 0,
-      recent28RuckScoreSum: 0,
-    };
-
-    try {
-      bodyImpact = calculateBodyImpact(input);
-    } catch (e) {
-      console.error('bodyImpact 계산 실패:', e);
-    }
   }
 
   const detail = getMetricDetail(metric, bodyImpact);
@@ -53,7 +61,9 @@ export default function EffectDetailModal({ isOpen, onClose, metric }) {
       <div className="p-6 space-y-6">
         {/* Emoji & Description */}
         <div className="text-center">
-          <div className="text-6xl mb-4">{detail.emoji}</div>
+          <div className="text-6xl mb-4" role="img" aria-label={detail.name}>
+            {detail.emoji}
+          </div>
           <p className="text-sm font-mono text-[#A8B5AF] leading-relaxed">
             {detail.description}
           </p>
@@ -107,14 +117,14 @@ export default function EffectDetailModal({ isOpen, onClose, metric }) {
         {/* Tips */}
         <div className="space-y-3">
           <p className="text-xs font-mono text-[#A8B5AF] uppercase tracking-wider">
-            💡 권장 사항
+            권장 사항
           </p>
           {detail.tips.map((tip, idx) => (
             <div
               key={idx}
               className="bg-[#0A0E0D]/30 border border-[#2D3A35]/20 rounded-sm p-3"
             >
-              <p className="text-sm font-mono text-[#E5ECE8]">• {tip}</p>
+              <p className="text-sm font-mono text-[#E5ECE8]">{tip}</p>
             </div>
           ))}
         </div>
@@ -134,7 +144,7 @@ export default function EffectDetailModal({ isOpen, onClose, metric }) {
         {/* Disclaimer */}
         <div className="bg-[#0A0E0D]/20 border border-[#2D3A35]/10 rounded-sm p-3">
           <p className="text-xs font-mono text-[#6B7872] leading-relaxed">
-            ⚠️ 이 지표는 참고용입니다. 의료적 조언을 대체하지 않으며, GPS 정확도 및 개인 차이에 따라 변동될 수 있습니다.
+            이 지표는 참고용입니다. 의료적 조언을 대체하지 않으며, GPS 정확도 및 개인 차이에 따라 변동될 수 있습니다.
           </p>
         </div>
       </div>

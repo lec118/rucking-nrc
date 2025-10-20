@@ -35,7 +35,10 @@
       "Bash(if not exist .githubworkflows mkdir .githubworkflows)",
       "Bash(if not exist .husky mkdir .husky)",
       "Bash(if not exist _deprecated mkdir _deprecated)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(del \"src\\pages\\Home.jsx\")",
+      "Bash(del \"src\\components\\TodayTrackModal.jsx\")",
+      "Bash(del \"src\\components\\EffectDetailModal.jsx\")"
     ],
     "deny": [],
     "ask": []

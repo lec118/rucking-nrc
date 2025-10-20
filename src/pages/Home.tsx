@@ -1,33 +1,52 @@
-// FILE: /src/pages/Home.jsx
-// 통합 대시보드 홈 화면
+/**
+ * 통합 대시보드 홈 화면
+ */
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useWorkout } from '../context/WorkoutContext';
 import { calculateWindowStats, calculateStreak, calculateWeeklyProgress, getRecentWorkouts, formatDate } from '../../lib/aggregateMetrics';
 import { getTodayDateString, isSessionOnDate } from '../../lib/geo/trackUtils';
 import TodayTrackModal from '../components/TodayTrackModal';
 import EffectDetailModal from '../components/EffectDetailModal';
+import { MetricType } from '../../lib/bodyImpactHelpers';
+import { APP_CONSTANTS } from '../../lib/constants';
+
+interface EffectModalState {
+  isOpen: boolean;
+  metric: MetricType | null;
+}
 
 export default function Home() {
   const { workouts } = useWorkout();
   const [isTodayModalOpen, setIsTodayModalOpen] = useState(false);
-  const [effectModalState, setEffectModalState] = useState({ isOpen: false, metric: null });
+  const [effectModalState, setEffectModalState] = useState<EffectModalState>({
+    isOpen: false,
+    metric: null,
+  });
 
-  // 통계 계산
-  const stats = calculateWindowStats(workouts);
-  const streak = calculateStreak(workouts);
-  const weeklyProgress = calculateWeeklyProgress(workouts, 3); // 주 3회 목표
-  const recentWorkouts = getRecentWorkouts(workouts, 3); // 메인 화면에 3개만 표시
+  // 통계 계산 (메모이제이션)
+  const stats = useMemo(() => calculateWindowStats(workouts), [workouts]);
+  const streak = useMemo(() => calculateStreak(workouts), [workouts]);
+  const weeklyProgress = useMemo(
+    () => calculateWeeklyProgress(workouts, APP_CONSTANTS.WEEKLY_WORKOUT_GOAL),
+    [workouts]
+  );
+  const recentWorkouts = useMemo(
+    () => getRecentWorkouts(workouts, APP_CONSTANTS.RECENT_WORKOUTS_DISPLAY_LIMIT),
+    [workouts]
+  );
 
   // 오늘 운동 여부 확인
-  const today = getTodayDateString();
-  const hasTodayWorkout = workouts.some((w) => isSessionOnDate(w.date, today));
+  const hasTodayWorkout = useMemo(() => {
+    const today = getTodayDateString();
+    return workouts.some((w) => isSessionOnDate(w.date, today));
+  }, [workouts]);
 
-  // 운동 효과 타일 클릭 핸들러
-  const handleEffectClick = (metric) => {
+  // 운동 효과 타일 클릭 핸들러 (메모이제이션)
+  const handleEffectClick = useCallback((metric: MetricType) => {
     setEffectModalState({ isOpen: true, metric });
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#0A0E0D] text-[#E5ECE8]">
@@ -162,9 +181,9 @@ export default function Home() {
                         )}
                       </div>
                       <div className="flex items-center gap-4 text-sm font-mono text-[#6B7872]">
-                        <span>📍 {workout.distance.toFixed(1)} km</span>
-                        <span>⏱️ {workout.duration} min</span>
-                        {workout.kcal && <span>🔥 {workout.kcal} kcal</span>}
+                        <span>{workout.distance.toFixed(1)} km</span>
+                        <span>{workout.duration} min</span>
+                        {workout.kcal && <span>{workout.kcal} kcal</span>}
                       </div>
                     </div>
                     <div className="text-right">
@@ -179,7 +198,7 @@ export default function Home() {
           )}
         </div>
 
-        {/* 운동 효과 (이전: 러킹의 장점) */}
+        {/* 운동 효과 */}
         <div className="bg-[#1C2321]/80 backdrop-blur-sm border border-[#2D3A35]/60 rounded-sm p-6">
           <h2 className="text-lg font-mono font-bold text-[#E5ECE8] uppercase tracking-wider mb-4">
             운동 효과
@@ -191,7 +210,9 @@ export default function Home() {
               className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors cursor-pointer"
               aria-label="심폐지구력 상세 보기"
             >
-              <div className="text-3xl mb-2">❤️</div>
+              <div className="text-3xl mb-2" role="img" aria-label="심폐지구력">
+                ❤️
+              </div>
               <p className="text-xs font-mono text-[#A8B5AF] mb-1">심폐지구력</p>
               <p className="text-xs font-mono text-[#6B7872]">유산소 강화</p>
             </button>
@@ -201,7 +222,9 @@ export default function Home() {
               className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors cursor-pointer"
               aria-label="근지구력 상세 보기"
             >
-              <div className="text-3xl mb-2">💪</div>
+              <div className="text-3xl mb-2" role="img" aria-label="근지구력">
+                💪
+              </div>
               <p className="text-xs font-mono text-[#A8B5AF] mb-1">근지구력</p>
               <p className="text-xs font-mono text-[#6B7872]">전신 근육</p>
             </button>
@@ -211,7 +234,9 @@ export default function Home() {
               className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors cursor-pointer"
               aria-label="골자극 상세 보기"
             >
-              <div className="text-3xl mb-2">🦴</div>
+              <div className="text-3xl mb-2" role="img" aria-label="골자극">
+                🦴
+              </div>
               <p className="text-xs font-mono text-[#A8B5AF] mb-1">골자극</p>
               <p className="text-xs font-mono text-[#6B7872]">뼈 건강</p>
             </button>
@@ -221,7 +246,9 @@ export default function Home() {
               className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 text-center hover:border-[#00B46E]/40 transition-colors cursor-pointer"
               aria-label="대사 활성 상세 보기"
             >
-              <div className="text-3xl mb-2">🔥</div>
+              <div className="text-3xl mb-2" role="img" aria-label="대사 활성">
+                🔥
+              </div>
               <p className="text-xs font-mono text-[#A8B5AF] mb-1">대사 활성</p>
               <p className="text-xs font-mono text-[#6B7872]">칼로리 소모</p>
             </button>
