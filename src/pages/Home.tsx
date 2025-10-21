@@ -9,6 +9,7 @@ import { calculateWindowStats, calculateStreak, calculateWeeklyProgress, getRece
 import { getTodayDateString, isSessionOnDate } from '../../lib/geo/trackUtils';
 import TodayTrackModal from '../components/TodayTrackModal';
 import EffectDetailModal from '../components/EffectDetailModal';
+import WorkoutDetailModal from '../components/WorkoutDetailModal';
 import { MetricType } from '../../lib/bodyImpactHelpers';
 import { APP_CONSTANTS } from '../../lib/constants';
 
@@ -24,6 +25,7 @@ export default function Home() {
     isOpen: false,
     metric: null,
   });
+  const [selectedWorkout, setSelectedWorkout] = useState<any | null>(null);
 
   // 통계 계산 (메모이제이션)
   const stats = useMemo(() => calculateWindowStats(workouts), [workouts]);
@@ -46,6 +48,11 @@ export default function Home() {
   // 운동 효과 타일 클릭 핸들러 (메모이제이션)
   const handleEffectClick = useCallback((metric: MetricType) => {
     setEffectModalState({ isOpen: true, metric });
+  }, []);
+
+  // 운동 기록 클릭 핸들러
+  const handleWorkoutClick = useCallback((workout: any) => {
+    setSelectedWorkout(workout);
   }, []);
 
   return (
@@ -164,9 +171,10 @@ export default function Home() {
           ) : (
             <div className="space-y-3">
               {recentWorkouts.map((workout) => (
-                <div
+                <button
                   key={workout.id}
-                  className="bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 hover:border-[#00B46E]/40 transition-colors"
+                  onClick={() => handleWorkoutClick(workout)}
+                  className="w-full bg-[#0A0E0D]/50 border border-[#2D3A35]/40 rounded-sm p-4 hover:border-[#00B46E]/40 transition-colors cursor-pointer text-left"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -192,7 +200,7 @@ export default function Home() {
                       </p>
                     </div>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           )}
@@ -262,6 +270,12 @@ export default function Home() {
         isOpen={effectModalState.isOpen}
         onClose={() => setEffectModalState({ isOpen: false, metric: null })}
         metric={effectModalState.metric}
+      />
+      <WorkoutDetailModal
+        isOpen={selectedWorkout !== null}
+        onClose={() => setSelectedWorkout(null)}
+        workout={selectedWorkout}
+        allWorkouts={workouts}
       />
     </div>
   );
